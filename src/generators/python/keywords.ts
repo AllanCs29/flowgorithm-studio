@@ -1,0 +1,2 @@
+export const PYTHON_KEYWORDS = new Set(['False','None','True','and','as','assert','async','await','break','class','continue','def','del','elif','else','except','finally','for','from','global','if','import','in','is','lambda','nonlocal','not','or','pass','raise','return','try','while','with','yield']);
+export function pythonIdentifier(name: string): string { const clean = name.normalize('NFKD').replace(/[^A-Za-z0-9_]/g, '_') || 'variable'; return /^[A-Za-z_]/.test(clean) && !PYTHON_KEYWORDS.has(clean) ? clean : `_${clean}`; }

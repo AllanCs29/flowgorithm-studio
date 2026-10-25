@@ -1,0 +1,1 @@
+export function pythonType(type: string): string { switch (type) { case 'Integer': return 'int'; case 'Real': return 'float'; case 'String': return 'str'; case 'Boolean': return 'bool'; default: return 'object'; } }

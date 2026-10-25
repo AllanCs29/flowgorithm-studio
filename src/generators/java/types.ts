@@ -1,0 +1,1 @@
+export function javaType(type: string): string { switch (type) { case 'Real': return 'double'; case 'String': return 'String'; case 'Boolean': return 'boolean'; case 'Void': return 'void'; default: return 'int'; } }

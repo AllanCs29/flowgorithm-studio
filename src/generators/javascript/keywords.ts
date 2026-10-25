@@ -1,0 +1,2 @@
+export const JAVASCRIPT_KEYWORDS = new Set(['await','break','case','catch','class','const','continue','debugger','default','delete','do','else','export','extends','finally','for','function','if','import','in','instanceof','let','new','return','static','super','switch','this','throw','try','typeof','var','void','while','with','yield','true','false','null']);
+export function javascriptIdentifier(name: string): string { const clean = name.replace(/[^A-Za-z0-9_$]/g, '_') || 'variable'; return /^[A-Za-z_$]/.test(clean) && !JAVASCRIPT_KEYWORDS.has(clean) ? clean : `_${clean}`; }

@@ -1,0 +1,802 @@
+[
+  {
+    "number": 1,
+    "world": 1,
+    "worldName": "Tu primer diagrama",
+    "title": "Encuentra Inicio y Fin",
+    "description": "Identifica el orden de ejecución en un diagrama básico.",
+    "check": "Debe seleccionar Inicio y luego Fin sin ayuda."
+  },
+  {
+    "number": 2,
+    "world": 1,
+    "worldName": "Tu primer diagrama",
+    "title": "Toca tu primera Salida",
+    "description": "Selecciona el bloque que muestra un mensaje y abre su editor.",
+    "check": "Inspector visible con bloque Salida seleccionado."
+  },
+  {
+    "number": 3,
+    "world": 1,
+    "worldName": "Tu primer diagrama",
+    "title": "Escribe «Hola, mundo»",
+    "description": "Configura una salida de texto literal.",
+    "check": "Salida exacta: Hola, mundo."
+  },
+  {
+    "number": 4,
+    "world": 1,
+    "worldName": "Tu primer diagrama",
+    "title": "Ponlo en otra línea",
+    "description": "Activa salto de línea y explica qué hace.",
+    "check": "Dos salidas ocupan dos líneas."
+  },
+  {
+    "number": 5,
+    "world": 1,
+    "worldName": "Tu primer diagrama",
+    "title": "Guarda y cancela sin miedo",
+    "description": "Cambia un texto, cancélalo y comprueba que no se guardó.",
+    "check": "Cancelar deja intacta la expresión original."
+  },
+  {
+    "number": 6,
+    "world": 1,
+    "worldName": "Tu primer diagrama",
+    "title": "Añade una pieza",
+    "description": "Inserta Salida entre Inicio y Fin.",
+    "check": "El diagrama contiene secuencia válida Inicio→Salida→Fin."
+  },
+  {
+    "number": 7,
+    "world": 1,
+    "worldName": "Tu primer diagrama",
+    "title": "Cambia el orden",
+    "description": "Coloca dos salidas en el orden pedido.",
+    "check": "El texto aparece Primero, luego Segundo."
+  },
+  {
+    "number": 8,
+    "world": 1,
+    "worldName": "Tu primer diagrama",
+    "title": "Borra sin romper el flujo",
+    "description": "Elimina una salida, conservando Inicio y Fin conectados.",
+    "check": "Flujo sigue siendo válido."
+  },
+  {
+    "number": 9,
+    "world": 1,
+    "worldName": "Tu primer diagrama",
+    "title": "Prueba paso a paso",
+    "description": "Ejecuta exactamente una instrucción y reinicia.",
+    "check": "Señal de ejecución avanza; Reset devuelve a Inicio."
+  },
+  {
+    "number": 10,
+    "world": 1,
+    "worldName": "Tu primer diagrama",
+    "title": "Tu primer programa completo",
+    "description": "Muestra nombre del curso, un saludo y una despedida.",
+    "check": "Tres líneas, en orden."
+  },
+  {
+    "number": 11,
+    "world": 2,
+    "worldName": "Variables y asignaciones",
+    "title": "La caja número",
+    "description": "Declara edad de tipo Integer y muéstrala.",
+    "check": "edad=0 al inicializar."
+  },
+  {
+    "number": 12,
+    "world": 2,
+    "worldName": "Variables y asignaciones",
+    "title": "Un valor propio",
+    "description": "Asigna 18 a edad y luego muéstrala.",
+    "check": "Salida: 18."
+  },
+  {
+    "number": 13,
+    "world": 2,
+    "worldName": "Variables y asignaciones",
+    "title": "Decimales correctos",
+    "description": "Declara Real precio y asígnale 12.5.",
+    "check": "Salida: 12.5."
+  },
+  {
+    "number": 14,
+    "world": 2,
+    "worldName": "Variables y asignaciones",
+    "title": "Palabras guardadas",
+    "description": "Declara String ciudad y asígnale un texto.",
+    "check": "Salida coincide con texto asignado."
+  },
+  {
+    "number": 15,
+    "world": 2,
+    "worldName": "Variables y asignaciones",
+    "title": "Verdadero o falso",
+    "description": "Declara Boolean activo y cambia su valor.",
+    "check": "Salida: true o false según entrada de prueba."
+  },
+  {
+    "number": 16,
+    "world": 2,
+    "worldName": "Variables y asignaciones",
+    "title": "Dos cajas distintas",
+    "description": "Declara a y b; asigna 3 y 8.",
+    "check": "Salida: 3 seguido de 8."
+  },
+  {
+    "number": 17,
+    "world": 2,
+    "worldName": "Variables y asignaciones",
+    "title": "El valor cambia",
+    "description": "Reasigna contador de 1 a 2.",
+    "check": "Salida final: 2."
+  },
+  {
+    "number": 18,
+    "world": 2,
+    "worldName": "Variables y asignaciones",
+    "title": "Nombres sin errores",
+    "description": "Repara nombre de variable no válido o no declarada.",
+    "check": "El programa se ejecuta sin identificadores inválidos."
+  },
+  {
+    "number": 19,
+    "world": 2,
+    "worldName": "Variables y asignaciones",
+    "title": "Intercambia con auxiliar",
+    "description": "Intercambia a=4 y b=9 usando temporal.",
+    "check": "Resultado final: a=9, b=4."
+  },
+  {
+    "number": 20,
+    "world": 2,
+    "worldName": "Variables y asignaciones",
+    "title": "Mini examen de variables",
+    "description": "Calcula total desde precio y cantidad.",
+    "check": "precio=7 y cantidad=3, total=21."
+  },
+  {
+    "number": 21,
+    "world": 3,
+    "worldName": "Entrada y matemáticas",
+    "title": "Pregúntame mi nombre",
+    "description": "Solicita String nombre y muestra saludo.",
+    "check": "«Luz» produce un saludo con Luz."
+  },
+  {
+    "number": 22,
+    "world": 3,
+    "worldName": "Entrada y matemáticas",
+    "title": "Dos números, una suma",
+    "description": "Lee a y b y muestra a+b.",
+    "check": "2 y 7 → 9."
+  },
+  {
+    "number": 23,
+    "world": 3,
+    "worldName": "Entrada y matemáticas",
+    "title": "Resta de bolsillo",
+    "description": "Calcula cambio = pago − costo.",
+    "check": "20 y 13 → 7."
+  },
+  {
+    "number": 24,
+    "world": 3,
+    "worldName": "Entrada y matemáticas",
+    "title": "Multiplica unidades",
+    "description": "Calcula precio × cantidad.",
+    "check": "12 y 4 → 48."
+  },
+  {
+    "number": 25,
+    "world": 3,
+    "worldName": "Entrada y matemáticas",
+    "title": "Divide con cuidado",
+    "description": "Calcula mitad de un valor Real.",
+    "check": "7 → 3.5."
+  },
+  {
+    "number": 26,
+    "world": 3,
+    "worldName": "Entrada y matemáticas",
+    "title": "El orden importa",
+    "description": "Usa paréntesis para calcular (a+b)*c.",
+    "check": "(2,3,4) → 20."
+  },
+  {
+    "number": 27,
+    "world": 3,
+    "worldName": "Entrada y matemáticas",
+    "title": "Área de triángulo",
+    "description": "Lee base y altura y calcula área.",
+    "check": "base 10, altura 5 → 25."
+  },
+  {
+    "number": 28,
+    "world": 3,
+    "worldName": "Entrada y matemáticas",
+    "title": "Temperatura",
+    "description": "Convierte Celsius a Fahrenheit.",
+    "check": "0 → 32; 100 → 212."
+  },
+  {
+    "number": 29,
+    "world": 3,
+    "worldName": "Entrada y matemáticas",
+    "title": "Minutos y horas",
+    "description": "Convierte minutos a horas completas y resto.",
+    "check": "125 → 2 horas y 5 minutos."
+  },
+  {
+    "number": 30,
+    "world": 3,
+    "worldName": "Entrada y matemáticas",
+    "title": "Calculadora inicial",
+    "description": "Lee dos números y una operación básica válida.",
+    "check": "8 y 3 con + → 11; con * → 24."
+  },
+  {
+    "number": 31,
+    "world": 4,
+    "worldName": "Decisiones y lógica",
+    "title": "¿Es mayor de edad?",
+    "description": "Decide usando edad>=18.",
+    "check": "17 → Menor; 18 → Mayor."
+  },
+  {
+    "number": 32,
+    "world": 4,
+    "worldName": "Decisiones y lógica",
+    "title": "Positivo o negativo",
+    "description": "Clasifica signo, incluyendo cero.",
+    "check": "-4 / 0 / 7 producen clases correctas."
+  },
+  {
+    "number": 33,
+    "world": 4,
+    "worldName": "Decisiones y lógica",
+    "title": "¿Par o impar?",
+    "description": "Usa residuo de división entre 2.",
+    "check": "-3 → Impar; 8 → Par."
+  },
+  {
+    "number": 34,
+    "world": 4,
+    "worldName": "Decisiones y lógica",
+    "title": "La nota pasa",
+    "description": "Decide Aprobado si promedio>=6.",
+    "check": "5.9 → No; 6 → Sí."
+  },
+  {
+    "number": 35,
+    "world": 4,
+    "worldName": "Decisiones y lógica",
+    "title": "¿Cuál es mayor?",
+    "description": "Compara dos números y maneja empate.",
+    "check": "3,3 → Iguales."
+  },
+  {
+    "number": 36,
+    "world": 4,
+    "worldName": "Decisiones y lógica",
+    "title": "Tres caminos",
+    "description": "Clasifica temperatura fría, templada o caliente.",
+    "check": "Pruebas en límites definidos."
+  },
+  {
+    "number": 37,
+    "world": 4,
+    "worldName": "Decisiones y lógica",
+    "title": "Rango permitido",
+    "description": "Verifica número entre 1 y 100 inclusive.",
+    "check": "0 → No; 1 y 100 → Sí."
+  },
+  {
+    "number": 38,
+    "world": 4,
+    "worldName": "Decisiones y lógica",
+    "title": "Condiciones combinadas",
+    "description": "Requiere usuario válido y PIN correcto.",
+    "check": "Pruebas true/false cruzadas."
+  },
+  {
+    "number": 39,
+    "world": 4,
+    "worldName": "Decisiones y lógica",
+    "title": "El mayor de tres",
+    "description": "Encuentra máximo con ramas anidadas.",
+    "check": "7,12,5 → 12 y casos empatados."
+  },
+  {
+    "number": 40,
+    "world": 4,
+    "worldName": "Decisiones y lógica",
+    "title": "Semáforo seguro",
+    "description": "Recibe color válido y muestra acción apropiada.",
+    "check": "Rojo → Alto, Verde → Avanza, otro → Error."
+  },
+  {
+    "number": 41,
+    "world": 5,
+    "worldName": "Repetir con Mientras y Hacer",
+    "title": "Cuenta hasta cinco",
+    "description": "Usa Mientras y termina en 5.",
+    "check": "1,2,3,4,5 exactamente."
+  },
+  {
+    "number": 42,
+    "world": 5,
+    "worldName": "Repetir con Mientras y Hacer",
+    "title": "Cuenta hacia atrás",
+    "description": "Empieza en 5 y termina en 1.",
+    "check": "5,4,3,2,1 exactamente."
+  },
+  {
+    "number": 43,
+    "world": 5,
+    "worldName": "Repetir con Mientras y Hacer",
+    "title": "¿Cuándo no entra?",
+    "description": "Predice y prueba un Mientras inicialmente falso.",
+    "check": "Cero iteraciones."
+  },
+  {
+    "number": 44,
+    "world": 5,
+    "worldName": "Repetir con Mientras y Hacer",
+    "title": "Hazlo una vez",
+    "description": "Compara Hacer mientras con Mientras.",
+    "check": "Una iteración aun con condición falsa al final."
+  },
+  {
+    "number": 45,
+    "world": 5,
+    "worldName": "Repetir con Mientras y Hacer",
+    "title": "Solo positivos",
+    "description": "Repite pedido hasta recibir un número positivo.",
+    "check": "-2,0,9 → acepta 9."
+  },
+  {
+    "number": 46,
+    "world": 5,
+    "worldName": "Repetir con Mientras y Hacer",
+    "title": "Clave correcta",
+    "description": "Solicita contraseña hasta acertar, sin exponerla.",
+    "check": "Dos fallos y un éxito, termina."
+  },
+  {
+    "number": 47,
+    "world": 5,
+    "worldName": "Repetir con Mientras y Hacer",
+    "title": "Suma hasta cero",
+    "description": "Usa 0 como centinela de entradas.",
+    "check": "3,4,0 → 7."
+  },
+  {
+    "number": 48,
+    "world": 5,
+    "worldName": "Repetir con Mientras y Hacer",
+    "title": "Cuenta intentos",
+    "description": "Cuenta cuántas entradas se hicieron antes del centinela.",
+    "check": "1,2,0 → 2."
+  },
+  {
+    "number": 49,
+    "world": 5,
+    "worldName": "Repetir con Mientras y Hacer",
+    "title": "Dígitos de un número",
+    "description": "Cuenta dígitos de entero no negativo con divisiones.",
+    "check": "0 → 1; 437 → 3."
+  },
+  {
+    "number": 50,
+    "world": 5,
+    "worldName": "Repetir con Mientras y Hacer",
+    "title": "Adivina el número",
+    "description": "Retroalimenta Mayor/Menor hasta acertar número fijo.",
+    "check": "Secuencia finita de intentos y terminación."
+  },
+  {
+    "number": 51,
+    "world": 6,
+    "worldName": "Para, contadores y acumuladores",
+    "title": "De uno a diez",
+    "description": "Usa Para con inicio, límite y paso.",
+    "check": "Salida 1..10."
+  },
+  {
+    "number": 52,
+    "world": 6,
+    "worldName": "Para, contadores y acumuladores",
+    "title": "De diez a uno",
+    "description": "Configura Para descendente.",
+    "check": "Salida 10..1."
+  },
+  {
+    "number": 53,
+    "world": 6,
+    "worldName": "Para, contadores y acumuladores",
+    "title": "Pares hasta N",
+    "description": "Itera de 2 en 2.",
+    "check": "N=8 → 2,4,6,8."
+  },
+  {
+    "number": 54,
+    "world": 6,
+    "worldName": "Para, contadores y acumuladores",
+    "title": "Tabla de multiplicar",
+    "description": "Muestra tabla para número introducido.",
+    "check": "N=3 → 3,6,…,30."
+  },
+  {
+    "number": 55,
+    "world": 6,
+    "worldName": "Para, contadores y acumuladores",
+    "title": "Suma de 1 a N",
+    "description": "Acumula una serie.",
+    "check": "4 → 10; 0 → 0."
+  },
+  {
+    "number": 56,
+    "world": 6,
+    "worldName": "Para, contadores y acumuladores",
+    "title": "Factorial",
+    "description": "Acumula con multiplicación.",
+    "check": "0 → 1; 5 → 120."
+  },
+  {
+    "number": 57,
+    "world": 6,
+    "worldName": "Para, contadores y acumuladores",
+    "title": "Promedio de N valores",
+    "description": "Suma N entradas y divide con control de N.",
+    "check": "3: 2,4,6 → 4."
+  },
+  {
+    "number": 58,
+    "world": 6,
+    "worldName": "Para, contadores y acumuladores",
+    "title": "Contar aprobados",
+    "description": "Cuenta calificaciones >=6 en N alumnos.",
+    "check": "[5,6,9] → 2."
+  },
+  {
+    "number": 59,
+    "world": 6,
+    "worldName": "Para, contadores y acumuladores",
+    "title": "Patrón triangular",
+    "description": "Anida bucles para imprimir triángulo de asteriscos.",
+    "check": "N=3 → 1,2,3 estrellas por línea."
+  },
+  {
+    "number": 60,
+    "world": 6,
+    "worldName": "Para, contadores y acumuladores",
+    "title": "Números primos",
+    "description": "Comprueba divisores de 2 a raíz de N o N-1.",
+    "check": "2,17 → Primo; 1,21 → No."
+  },
+  {
+    "number": 61,
+    "world": 7,
+    "worldName": "Texto y caracteres",
+    "title": "Une dos palabras",
+    "description": "Concatena nombre y apellido.",
+    "check": "«Ada» y «Lovelace» → «Ada Lovelace»."
+  },
+  {
+    "number": 62,
+    "world": 7,
+    "worldName": "Texto y caracteres",
+    "title": "Cuenta letras",
+    "description": "Calcula longitud de un texto.",
+    "check": "«casa» → 4."
+  },
+  {
+    "number": 63,
+    "world": 7,
+    "worldName": "Texto y caracteres",
+    "title": "Primera y última",
+    "description": "Obtiene primer y último carácter sin salir del rango.",
+    "check": "«sol» → s y l."
+  },
+  {
+    "number": 64,
+    "world": 7,
+    "worldName": "Texto y caracteres",
+    "title": "Recorre una palabra",
+    "description": "Muestra cada carácter en línea distinta.",
+    "check": "«pez» → p,e,z."
+  },
+  {
+    "number": 65,
+    "world": 7,
+    "worldName": "Texto y caracteres",
+    "title": "Cuenta vocales",
+    "description": "Cuenta vocales mayúsculas/minúsculas.",
+    "check": "«Murciélago» → resultado según política de acentos."
+  },
+  {
+    "number": 66,
+    "world": 7,
+    "worldName": "Texto y caracteres",
+    "title": "Invierte la palabra",
+    "description": "Recorre cadena al revés.",
+    "check": "«roma» → «amor»."
+  },
+  {
+    "number": 67,
+    "world": 7,
+    "worldName": "Texto y caracteres",
+    "title": "¿Es palíndromo?",
+    "description": "Compara texto con inverso, ignorando mayúsculas.",
+    "check": "«Reconocer» → Sí."
+  },
+  {
+    "number": 68,
+    "world": 7,
+    "worldName": "Texto y caracteres",
+    "title": "Cuenta espacios",
+    "description": "Calcula número de separadores en una frase.",
+    "check": "«uno dos tres» → 2."
+  },
+  {
+    "number": 69,
+    "world": 7,
+    "worldName": "Texto y caracteres",
+    "title": "Extrae iniciales",
+    "description": "Lee nombre compuesto y produce iniciales.",
+    "check": "«Ana Maria Sol» → AMS."
+  },
+  {
+    "number": 70,
+    "world": 7,
+    "worldName": "Texto y caracteres",
+    "title": "Frecuencia de letra",
+    "description": "Cuenta apariciones de un carácter en texto.",
+    "check": "«banana», «a» → 3."
+  },
+  {
+    "number": 71,
+    "world": 8,
+    "worldName": "Arreglos de una dimensión",
+    "title": "Tu primer arreglo",
+    "description": "Declara vector Integer[5] y visualiza cinco posiciones.",
+    "check": "Longitud 5, índices 0..4."
+  },
+  {
+    "number": 72,
+    "world": 8,
+    "worldName": "Arreglos de una dimensión",
+    "title": "Guarda por índice",
+    "description": "Escribe 7 en posición 2 y lee ese dato.",
+    "check": "v[2] → 7."
+  },
+  {
+    "number": 73,
+    "world": 8,
+    "worldName": "Arreglos de una dimensión",
+    "title": "Carga cinco números",
+    "description": "Lee y almacena cinco entradas en un vector.",
+    "check": "Entrada 1..5 → vector 1..5."
+  },
+  {
+    "number": 74,
+    "world": 8,
+    "worldName": "Arreglos de una dimensión",
+    "title": "Suma elementos",
+    "description": "Recorre vector y calcula suma.",
+    "check": "[2,3,4] → 9."
+  },
+  {
+    "number": 75,
+    "world": 8,
+    "worldName": "Arreglos de una dimensión",
+    "title": "Promedio del arreglo",
+    "description": "Promedia elementos; protege longitud 0 si permitida.",
+    "check": "[4,6,8] → 6."
+  },
+  {
+    "number": 76,
+    "world": 8,
+    "worldName": "Arreglos de una dimensión",
+    "title": "Encuentra el mayor",
+    "description": "Busca máximo en vector de enteros.",
+    "check": "[-9,-2,-5] → -2."
+  },
+  {
+    "number": 77,
+    "world": 8,
+    "worldName": "Arreglos de una dimensión",
+    "title": "¿Dónde está?",
+    "description": "Búsqueda lineal que devuelve índice o -1.",
+    "check": "[4,6,2],6 → 1."
+  },
+  {
+    "number": 78,
+    "world": 8,
+    "worldName": "Arreglos de una dimensión",
+    "title": "Invierte un vector",
+    "description": "Intercambia elementos extremos.",
+    "check": "[1,2,3] → [3,2,1]."
+  },
+  {
+    "number": 79,
+    "world": 8,
+    "worldName": "Arreglos de una dimensión",
+    "title": "Elimina duplicados",
+    "description": "Obtiene valores únicos preservando orden.",
+    "check": "[3,3,2,3] → [3,2]."
+  },
+  {
+    "number": 80,
+    "world": 8,
+    "worldName": "Arreglos de una dimensión",
+    "title": "Ordena números",
+    "description": "Implementa burbuja y prueba repetidos/negativos.",
+    "check": "[5,-1,5,2] → [-1,2,5,5]."
+  },
+  {
+    "number": 81,
+    "world": 9,
+    "worldName": "Matrices, filas y columnas",
+    "title": "La cuadrícula",
+    "description": "Construye matriz 2×3 desde arreglo de seis elementos.",
+    "check": "6 celdas y mapeo correcto."
+  },
+  {
+    "number": 82,
+    "world": 9,
+    "worldName": "Matrices, filas y columnas",
+    "title": "De fila y columna a índice",
+    "description": "Calcula fila*columnas+columna.",
+    "check": "fila 1, col 2 en 3 columnas → índice 5."
+  },
+  {
+    "number": 83,
+    "world": 9,
+    "worldName": "Matrices, filas y columnas",
+    "title": "Llena matriz 3×3",
+    "description": "Usa ciclos anidados para cargar nueve posiciones.",
+    "check": "Nueve valores conservados."
+  },
+  {
+    "number": 84,
+    "world": 9,
+    "worldName": "Matrices, filas y columnas",
+    "title": "Suma una fila",
+    "description": "Suma elementos de fila indicada.",
+    "check": "[[1,2],[3,4]], fila 1 → 7."
+  },
+  {
+    "number": 85,
+    "world": 9,
+    "worldName": "Matrices, filas y columnas",
+    "title": "Suma una columna",
+    "description": "Suma elementos por columna.",
+    "check": "[[1,2],[3,4]], col 0 → 4."
+  },
+  {
+    "number": 86,
+    "world": 9,
+    "worldName": "Matrices, filas y columnas",
+    "title": "Diagonal principal",
+    "description": "Suma diagonal de matriz cuadrada.",
+    "check": "[[1,2],[3,4]] → 5."
+  },
+  {
+    "number": 87,
+    "world": 9,
+    "worldName": "Matrices, filas y columnas",
+    "title": "Transposición",
+    "description": "Intercambia filas por columnas en representación.",
+    "check": "2×3 → 3×2, orden correcto."
+  },
+  {
+    "number": 88,
+    "world": 9,
+    "worldName": "Matrices, filas y columnas",
+    "title": "Multiplicación de matrices",
+    "description": "Calcula producto pequeño con triples ciclos y dimensiones válidas.",
+    "check": "Identidad × A = A."
+  },
+  {
+    "number": 89,
+    "world": 10,
+    "worldName": "Funciones, modularidad y recursión",
+    "title": "Una función útil",
+    "description": "Crea función doble(x) y la llama.",
+    "check": "doble(4) → 8."
+  },
+  {
+    "number": 90,
+    "world": 10,
+    "worldName": "Funciones, modularidad y recursión",
+    "title": "Devuelve un resultado",
+    "description": "Implementa areaRectangulo(base,altura).",
+    "check": "(3,5) → 15."
+  },
+  {
+    "number": 91,
+    "world": 10,
+    "worldName": "Funciones, modularidad y recursión",
+    "title": "Divide para conquistar",
+    "description": "Separa validación y cálculo en funciones.",
+    "check": "Mismas salidas que solución monolítica."
+  },
+  {
+    "number": 92,
+    "world": 10,
+    "worldName": "Funciones, modularidad y recursión",
+    "title": "Funciones con decisiones",
+    "description": "Implementa esPar(n) como función booleana.",
+    "check": "-2 → true, 7 → false."
+  },
+  {
+    "number": 93,
+    "world": 10,
+    "worldName": "Funciones, modularidad y recursión",
+    "title": "Reutiliza un cálculo",
+    "description": "Implementa maximo(a,b) y úsalo varias veces.",
+    "check": "(3,9) → 9."
+  },
+  {
+    "number": 94,
+    "world": 10,
+    "worldName": "Funciones, modularidad y recursión",
+    "title": "Factorial recursivo",
+    "description": "Implementa caso base y llamada recursiva segura.",
+    "check": "0 → 1; 5 → 120."
+  },
+  {
+    "number": 95,
+    "world": 10,
+    "worldName": "Funciones, modularidad y recursión",
+    "title": "Euclides recursivo",
+    "description": "Calcula máximo común divisor con mod.",
+    "check": "(48,18) → 6."
+  },
+  {
+    "number": 96,
+    "world": 11,
+    "worldName": "Proyectos finales",
+    "title": "Sistema de calificaciones",
+    "description": "Lee N alumnos, calcula promedios y clasificación.",
+    "check": "Incluye cero alumnos, límites y distintos promedios."
+  },
+  {
+    "number": 97,
+    "world": 11,
+    "worldName": "Proyectos finales",
+    "title": "Caja registradora",
+    "description": "Registra artículos, cantidades, descuentos y total.",
+    "check": "Valida cero productos, redondeos y errores de entrada."
+  },
+  {
+    "number": 98,
+    "world": 11,
+    "worldName": "Proyectos finales",
+    "title": "Inventario sencillo",
+    "description": "Agrega, busca, actualiza y lista productos.",
+    "check": "Evita ID duplicado y stock negativo."
+  },
+  {
+    "number": 99,
+    "world": 11,
+    "worldName": "Proyectos finales",
+    "title": "Estadística de una clase",
+    "description": "Calcula media, mayor, menor y distribución por rangos.",
+    "check": "Compara con conjunto de referencia y empates."
+  },
+  {
+    "number": 100,
+    "world": 11,
+    "worldName": "Proyectos finales",
+    "title": "Proyecto maestro: gestión de biblioteca",
+    "description": "Usa menús, funciones, arreglos, búsqueda y reporte de préstamos.",
+    "check": "Casos ocultos: préstamo, devolución, inexistente y límites."
+  }
+]

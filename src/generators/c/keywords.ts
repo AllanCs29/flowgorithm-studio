@@ -1,0 +1,2 @@
+export const C_KEYWORDS = new Set(['auto','break','case','char','const','continue','default','do','double','else','enum','extern','float','for','goto','if','inline','int','long','register','restrict','return','short','signed','sizeof','static','struct','switch','typedef','union','unsigned','void','volatile','while','_Bool']);
+export function cIdentifier(name: string): string { const clean = name.replace(/[^A-Za-z0-9_]/g, '_') || 'variable'; return /^[A-Za-z_]/.test(clean) && !C_KEYWORDS.has(clean) ? clean : `_${clean}`; }

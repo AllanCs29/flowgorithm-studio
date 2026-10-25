@@ -1,0 +1,67 @@
+/* v12 · Figuras y sintaxis visual de Flowgorithm, no pseudocódigo alternativo. */
+.v12-foundation{border:1px solid #d8dffc;border-left:4px solid #6366e7;background:#f8f9ff;border-radius:13px;padding:13px 16px;margin:14px 0 17px;display:grid;gap:6px}
+.v12-foundation>span{font-size:10px;color:#6366c5;letter-spacing:.07em;font-weight:900}
+.v12-foundation strong{font-size:16px;line-height:1.45;color:#263658}.v12-foundation p{font-size:13px;color:#51617a;line-height:1.65;margin:0}
+.v12-lesson-visual-stack{display:grid;gap:14px;min-width:0}
+.v12-shape-hint{color:#74809b;padding:0 19px 10px;margin:0;font-size:11px;line-height:1.6}
+/* Nodes: recognisable silhouette, labels are positioned on top and do not get clipped. */
+.v11-visual .v11-flow-block{border-radius:0;min-width:176px;min-height:59px;width:min(230px,95%);background:#fffbd6;border-color:#a49f70;color:#333c40;box-shadow:none;transition:transform .2s,filter .2s}
+.v11-visual .v11-flow-block small{font-size:8px;color:#707e8e}
+.v11-visual .v11-flow-block strong{font-size:11px;line-height:1.35;font-weight:750;position:relative;z-index:1}
+.v11-visual .v11-flow-block.kind-start,.v11-visual .v11-flow-block.kind-end{width:142px;min-height:54px;min-width:120px;border-radius:40px;background:#f1e4fb;border-color:#996aa7}
+.v11-visual .v11-flow-block.kind-declare{background:#ffffd6;border-color:#9fa075;padding-left:19px}
+.v11-visual .v11-flow-block.kind-declare:before{content:'';position:absolute;left:10%;top:0;height:100%;width:1px;background:#a9ac83}
+.v11-visual .v11-flow-block.kind-declare:after{content:'';position:absolute;left:0;top:21%;width:100%;height:1px;background:#a9ac83}
+.v11-visual .v11-flow-block.kind-assign{background:#ffffd3;border-color:#a9a36e}
+.v11-visual .v11-flow-block.kind-input,.v11-visual .v11-flow-block.kind-output{background:transparent;border:0;padding:10px 24px;isolation:isolate}
+.v11-visual .v11-flow-block.kind-input::before,.v11-visual .v11-flow-block.kind-output::before{position:absolute;inset:0;content:'';z-index:-1;clip-path:polygon(12% 0,100% 0,88% 100%,0 100%);background:#6d91b0}
+.v11-visual .v11-flow-block.kind-input::after,.v11-visual .v11-flow-block.kind-output::after{position:absolute;inset:1.5px;content:'';z-index:-1;clip-path:polygon(12% 0,100% 0,88% 100%,0 100%);background:#d5eaff}
+.v11-visual .v11-flow-block.kind-output::before{background:#68a981}
+.v11-visual .v11-flow-block.kind-output::after{background:#d5fbda}
+.v11-visual .v11-flow-block.kind-decision,.v11-visual .v11-flow-block.kind-loop{background:transparent;border:0;min-height:100px;min-width:170px;isolation:isolate}
+.v11-visual .v11-flow-block.kind-decision::before,.v11-visual .v11-flow-block.kind-loop::before{content:'';position:absolute;inset:0;z-index:-1;background:#a98abd;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%)}
+.v11-visual .v11-flow-block.kind-decision::after,.v11-visual .v11-flow-block.kind-loop::after{content:'';position:absolute;inset:2px;z-index:-1;background:#f4e8ff;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%)}
+.v11-visual .v11-flow-block.kind-comment{border-style:dashed;background:#fffef3}
+.v11-visual .v11-flow-block.is-active{filter:drop-shadow(0 0 9px #6c64d779);outline:3px solid #6159ea;outline-offset:3px;transform:scale(1.025)}
+.v11-visual .v11-flow-block.is-active.kind-input,.v11-visual .v11-flow-block.is-active.kind-output,.v11-visual .v11-flow-block.is-active.kind-decision,.v11-visual .v11-flow-block.is-active.kind-loop{outline:0;filter:drop-shadow(0 0 5px #6b62ea9c)}
+.v11-visual .v11-flow-block.is-active.kind-input:before,.v11-visual .v11-flow-block.is-active.kind-output:before,.v11-visual .v11-flow-block.is-active.kind-decision:before,.v11-visual .v11-flow-block.is-active.kind-loop:before{background:#5756df}
+.v11-visual .v11-flow-block .v11-active-tag{bottom:-13px;right:-12px;z-index:3}
+.v11-visual .v11-branch-arm .v11-flow-block{min-width:0;width:100%;font-size:10px}
+.v11-visual .v11-flow-graph{gap:3px;padding:22px 10px}
+.v11-visual .v11-flow-arrow{font-size:21px;color:#525963;font-weight:900}
+.v11-visual .v11-loop-area{border-color:#b4a1dd;background:#f5effa9e}
+.v12-circle-lab{border:1px solid #dce2f1;background:#fff;border-radius:16px;overflow:hidden}
+.v12-circle-launch{border:0!important;border-radius:0!important;padding:17px!important;display:flex;justify-content:space-between;align-items:center;gap:12px;background:#fbfbff!important;width:100%;text-align:left;color:#2b3b5a!important}
+.v12-circle-launch>span:first-child{display:grid;gap:5px}.v12-circle-launch small{font-size:9px;letter-spacing:.1em;color:#6760c4;font-weight:900}.v12-circle-launch strong{font-size:14px;line-height:1.4}.v12-circle-launch em{font-style:normal;font-size:11px;color:#7b879c}.v12-circle-launch>span:last-child{font-size:25px;color:#5754c7;line-height:1}
+.v12-circle-expanded{padding:0 12px 14px;display:grid;gap:12px}
+.v12-circle-expanded>p{color:#586c87;font-size:12px;line-height:1.65;margin:5px 0}
+.v12-radius-control{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;color:#465779;font-weight:700;font-size:12px}
+.v12-radius-control strong{font-size:17px;color:#5052c9}.v12-circle-expanded input[type=range]{width:100%;accent-color:#6264dc;min-height:32px;cursor:pointer}
+.v12-circle-equation{border:1px solid #dfe6f5;background:#f6f8ff;padding:12px;border-radius:10px;text-align:center;color:#5e6985;font-size:12px}.v12-circle-equation strong{color:#313fa1}
+.v12-circle-expanded .v11-visual{border-radius:11px;box-shadow:none}.v12-circle-expanded .v11-visual-header{padding-top:13px}
+.v12-circle-footnote code,.v12-circle-expanded code{color:#4b53be}
+/* Identical symbols inside the editable diagram. */
+.v5-canvas-wrap .node-shape.declare{fill:#fffbd3;stroke:#a6a071;stroke-width:1.5}
+.v5-canvas-wrap .node-shape.assign{fill:#fffbd3;stroke:#aaa36e;stroke-width:1.5}
+.v5-canvas-wrap .node-shape.io-input{fill:#d7eaff;stroke:#739ab5;stroke-width:1.8}
+.v5-canvas-wrap .node-shape.io-output{fill:#d8fade;stroke:#73a781;stroke-width:1.8}
+.v5-canvas-wrap .node-shape.pill{fill:#f2e4fb;stroke:#a074b5;stroke-width:1.8}
+.v5-canvas-wrap .node-shape.diamond{fill:#f2e4fa;stroke:#ac83c0;stroke-width:1.7}
+.v5-canvas-wrap .v12-declare-divider{fill:none;stroke:#a6a071;stroke-width:1.5;pointer-events:none}
+.v5-canvas-wrap .node-shape.declare ~ .node-type,.v5-canvas-wrap .node-shape.declare ~ .node-label,.v5-canvas-wrap .node-shape.assign ~ .node-type,.v5-canvas-wrap .node-shape.assign ~ .node-label,.v5-canvas-wrap .node-shape.io ~ .node-type,.v5-canvas-wrap .node-shape.io ~ .node-label,.v5-canvas-wrap .node-shape.pill ~ .node-type,.v5-canvas-wrap .node-shape.pill ~ .node-label{fill:#34445a}
+.v5-canvas-wrap .node-shape.selected{stroke:#5556e3;stroke-width:3;filter:drop-shadow(0 0 5px #7771e97a)}
+@media(max-width:760px){.v12-foundation{padding:12px}.v12-foundation strong{font-size:14px}.v12-circle-expanded{padding:0 9px 10px}.v11-visual .v11-flow-block{min-width:150px;width:min(222px,90%)}.v11-visual .v11-branch-routes{gap:7px}}
+@media(prefers-reduced-motion:reduce){.v12-circle-lab *{transition:none!important;animation:none!important}}
+
+.v11-memory-box small{font:800 9px/1.3 ui-sans-serif,system-ui;letter-spacing:.02em;color:#71809d}.v11-memory-box small.v12-type-integer{color:#3e6cb0}.v11-memory-box small.v12-type-real{color:#7c56a9}.v11-memory-box small.v12-type-string{color:#bd5d63}.v11-memory-box small.v12-type-boolean{color:#2c8a88}
+
+/* v12.1 · Diferencia explícita entre el valor inicial y el resultado calculado. */
+.v121-stage-note{display:grid;gap:5px;border:1px solid #cbd6ef;border-left:3px solid #6b6ee6;background:#f7f8ff;padding:10px 12px;border-radius:9px;line-height:1.55}
+.v121-stage-note strong{font-size:11px;color:#373e9e}
+.v121-stage-note span{font-size:11px;color:#526080}
+.v11-memory-box.v121-initial-memory{background:#fafbfe;border-color:#ccd5e5}
+.v121-memory-state{font:650 10px/1.45 ui-sans-serif,system-ui;color:#6f7892;overflow-wrap:anywhere;font-style:normal}
+.v11-memory-box.v121-initial-memory strong{color:#5f6b8c}
+@media(max-width:760px){.v121-stage-note{padding:10px}.v121-memory-state{font-size:10px}}
+
+@media(max-width:1120px){.v121-stage-note{grid-column:1/-1}}

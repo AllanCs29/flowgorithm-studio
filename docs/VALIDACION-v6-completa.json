@@ -1,0 +1,13 @@
+{
+  "version": "v6-completa",
+  "catalog_items": 100,
+  "available_items": 100,
+  "programs_checked": 94,
+  "program_test_cases": 224,
+  "initial_programs_requiring_correction": 94,
+  "interactive_exercises_checked": 6,
+  "projects_structurally_valid": 200,
+  "recursion_guard_checked": true,
+  "generator_spot_checks": 6,
+  "note": "Validación de motor por Node.js con transpileModule, no reemplaza npm run verify ni pruebas visuales de React."
+}

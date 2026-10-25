@@ -1,0 +1,1 @@
+export function javascriptType(type: string): string { switch (type) { case 'Integer': case 'Real': return 'number'; case 'String': return 'string'; case 'Boolean': return 'boolean'; default: return 'unknown'; } }

@@ -1,0 +1,1 @@
+export function cppType(type: string): string { switch (type) { case 'Real': return 'double'; case 'String': return 'string'; case 'Boolean': return 'bool'; case 'Void': return 'void'; default: return 'int'; } }
