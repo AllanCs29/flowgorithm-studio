@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FlowFunction, RuntimeValue, TYPE_LABELS } from '../domain/models';
 import { ExecutionContext } from '../interpreter/engine';
 import { format, upcomingDecision, VisualFrame } from '../interpreter/visualTrace';
@@ -28,7 +28,14 @@ function ValueViewer({ value, changedIndices }: { value: RuntimeValue; changedIn
 }
 
 export function VisualDebugger({ func, frames, cursor, playing, speed, onSeek, onStep, onPlay, onSpeed, onReset, onRun, onInput }: Props): React.ReactElement {
-  const [expanded, setExpanded] = useState(true);
+  // En iPhone mantenemos el diagrama a la vista. El detalle se abre a demanda.
+  const [expanded, setExpanded] = useState(() => typeof window !== 'undefined' && !window.matchMedia('(max-width: 760px)').matches);
+  useEffect(() => {
+    const media = window.matchMedia('(max-width: 760px)');
+    const onBreakpointChange = () => setExpanded(!media.matches);
+    media.addEventListener('change', onBreakpointChange);
+    return () => media.removeEventListener('change', onBreakpointChange);
+  }, []);
   const [prediction, setPrediction] = useState<{nodeId:string;stepCount:number;choice:boolean}|null>(null);
   const frame = frames[cursor] ?? frames[0];
   const context: ExecutionContext = frame.context;
@@ -39,10 +46,12 @@ export function VisualDebugger({ func, frames, cursor, playing, speed, onSeek, o
   const changed = new Map(frame.changes.map(change => [change.name, change]));
   const isWaiting = context.status==='WAITING_INPUT';
   const isTerminal = ['FINISHED','ERROR','STOPPED'].includes(context.status);
-  return <section className={`v7-simulator ${expanded?'expanded':'collapsed'}`} aria-label="Simulador visual de la ejecución">
+  return <>
+    {expanded && <button type="button" className="v14m-simulator-scrim" aria-label="Cerrar detalle de ejecución" onClick={()=>setExpanded(false)} />}
+    <section className={`v7-simulator ${expanded?'expanded':'collapsed'}`} aria-label="Simulador visual de la ejecución">
     <div className="v7-simulator-top">
       <div className="v7-simulator-identity"><span className="v7-simulator-symbol" aria-hidden="true">◉</span><div><strong>Así piensa tu algoritmo</strong><span>{frame.label} · {context.status==='FINISHED'?'Terminado':context.status==='ERROR'?'Error':context.status==='WAITING_INPUT'?'Espera un dato':playing?'Animando':'En pausa'}</span></div></div>
-      <button className="v7-toggle" onClick={()=>setExpanded(v=>!v)} aria-expanded={expanded}>{expanded?'Ocultar detalles ▴':'Explorar la ejecución ▾'}</button>
+      <button className="v7-toggle" onClick={()=>setExpanded(v=>!v)} aria-expanded={expanded}>{expanded?'Cerrar detalles ▾':'Ver ejecución ▴'}</button>
     </div>
     {expanded && <div className="v7-simulator-content">
       <div className="v7-simulator-controls" role="group" aria-label="Controles de simulación">
@@ -71,5 +80,5 @@ export function VisualDebugger({ func, frames, cursor, playing, speed, onSeek, o
       {frame.newOutput && <p className="v7-new-output">Nueva salida de este paso: <code>{frame.newOutput.replace(/\n/g,'↵')}</code></p>}
       <p className="v7-limit-note">Esta vista registra la función principal; una función llamada dentro de otra aparece resumida como una sola instrucción. El historial se limita a {450} fotogramas para cuidar el rendimiento.</p>
     </div>}
-  </section>;
+  </section></>;
 }

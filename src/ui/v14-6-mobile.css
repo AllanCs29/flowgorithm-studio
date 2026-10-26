@@ -1,0 +1,45 @@
+/* v14.6: la meta siempre accesible, sin tapar el diagrama. Estilos exclusivos del editor móvil. */
+.v146-mobile-objective{display:none}
+@media (max-width:760px){
+  .v145-mobile-objective{display:none!important}
+  .v146-mobile-objective{display:flex;flex-direction:column;flex:none;gap:0;background:#f6f7ff;border-bottom:1px solid #dfe3f5;color:#253558;padding:0 14px 7px;box-sizing:border-box;max-height:min(38dvh,320px);overflow:auto;-webkit-overflow-scrolling:touch}
+  .v146-goal-toggle{display:flex;align-items:center;gap:11px;min-height:46px;width:100%;padding:7px 2px!important;background:transparent!important;border:0!important;text-align:left;color:#283865!important}
+  .v146-goal-icon{background:#e9eaff;border-radius:10px;color:#5c61cf;display:grid;place-items:center;width:34px;height:34px;flex:none;font-size:19px}
+  .v146-goal-title{min-width:0;flex:1;display:grid;gap:1px}
+  .v146-goal-title strong{font-size:13px;letter-spacing:.015em}
+  .v146-goal-title small{font-size:10px;color:#78849c;font-weight:550}
+  .v146-goal-chevron{font-size:20px;font-weight:750;color:#676bd6;width:27px;text-align:center;flex:none}
+  .v146-goal-preview{margin:0 4px 0 45px;color:#435273;font-size:12px;font-weight:600;line-height:1.45;overflow:hidden;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;white-space:normal;text-overflow:ellipsis}
+  .v146-goal-expanded{display:grid;gap:10px;padding:0 2px 7px;animation:v146-appear .13s ease-out}
+  .v146-goal-expanded[hidden]{display:none!important}
+  .v146-goal-full{font-size:14px;font-weight:670;line-height:1.48;margin:2px 0;color:#263552;overflow-wrap:anywhere}
+  .v146-goal-encouragement{margin:0;font-size:12px;color:#67768e}
+  .v146-goal-tools{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .v146-goal-tools button{background:#fff!important;color:#5259c2!important;border:1px solid #d9def5!important;min-height:44px;border-radius:12px!important;display:flex;align-items:center;justify-content:space-between;gap:5px;padding:8px 11px!important;text-align:left;font-weight:790;font-size:11px;white-space:normal}
+  .v146-goal-tools button[aria-expanded=true]{background:#e9ebff!important;border-color:#9ea5f6!important}
+  .v146-reveal{background:#fff;border:1px solid #dce2f4;border-radius:12px;padding:12px 13px;color:#3c4a68;font-size:12px;line-height:1.5}
+  .v146-reveal ul{padding-left:19px;margin:7px 0 0}.v146-reveal li+li{margin-top:5px}
+  .v146-reveal p{margin:0 0 10px}
+  .v146-guide-button{min-height:44px;border-radius:10px!important;background:#5c62df!important;color:white!important;border:0!important;padding:10px 12px!important;font-weight:800;width:100%}
+  .v146-mobile-objective button:focus-visible{outline:3px solid #7779f0;outline-offset:2px}
+  /* La guía ya no reduce el espacio útil mientras no se haya solicitado. */
+  .v5-editor-main .v146-mobile-objective.is-compact{padding-bottom:8px}
+  .v5-canvas-wrap .edge{stroke:#9aaac0;stroke-width:1.45;opacity:.88;stroke-linecap:round;stroke-linejoin:round}
+  .v5-canvas-wrap .edge-true{stroke:#7cb9a6}.v5-canvas-wrap .edge-false{stroke:#c7a1af}.v5-canvas-wrap .edge-body{stroke:#b4aa83}
+  .v5-canvas-wrap .edge.v7-executed-edge{stroke:#17a17e;stroke-width:3;opacity:1;filter:drop-shadow(0 0 2px #46ad8b66)}
+  .v5-canvas-wrap .edge.v7-return-edge{stroke:#6259dd;stroke-width:3;opacity:1}
+  .v5-canvas-wrap .edge-label{fill:#697997;font-weight:760}
+  /* El fondo permite desplazarse. Sobre los bloques diferenciamos pulsación, arrastre y desplazamiento manual. */
+  .v5-canvas-wrap .flow-canvas [data-flow-node]{touch-action:none;cursor:pointer;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+  .v5-canvas-wrap .flow-canvas [data-flow-node].v146-moving .node-shape{stroke:#655cf1;stroke-width:3;filter:drop-shadow(0 5px 8px #565cd344);opacity:.92}
+  .v5-canvas-wrap .flow-canvas [data-flow-node].v146-moving .node-label{font-weight:850}
+  .v5-canvas-wrap .node-shape{transition:stroke .12s,filter .12s,opacity .12s}
+  .v142-mobile-tip{line-height:1.38}
+}
+@media (max-width:760px) and (max-height:690px){
+  .v146-mobile-objective{padding:0 10px 5px;max-height:34dvh}
+  .v146-goal-toggle{min-height:42px}
+  .v146-goal-preview{font-size:11px}
+}
+@media (prefers-reduced-motion:reduce){.v146-goal-expanded{animation:none}}
+@keyframes v146-appear{from{opacity:.45;transform:translateY(-3px)}to{opacity:1;transform:translateY(0)}}

@@ -22,7 +22,7 @@ function tokenize(source: string): Token[] {
   }
   tokens.push({ type: 'eof', text: '', pos: source.length }); return tokens;
 }
-const precedence: Readonly<Record<string, number>> = { or: 1, '||': 1, and: 2, '&&': 2, '=': 3, '==': 3, '!=': 3, '<>': 3, '<': 4, '<=': 4, '>': 4, '>=': 3, '&': 4, '+': 5, '-': 5, '*': 6, '/': 6, '%': 6, '^': 7 };
+const precedence: Readonly<Record<string, number>> = { or: 1, '||': 1, and: 2, '&&': 2, '=': 3, '==': 3, '!=': 3, '<>': 3, '<': 3, '<=': 3, '>': 3, '>=': 3, '&': 4, '+': 5, '-': 5, '*': 6, '/': 6, '%': 6, mod: 6, '^': 7 };
 export function parseExpression(source: string): Expr {
   const tokens = tokenize(source); let index = 0; const peek = () => tokens[index]; const take = () => tokens[index++];
   function parse(min = 0): Expr {
@@ -32,11 +32,11 @@ export function parseExpression(source: string): Expr {
     else if (token.type === 'identifier') {
       const lower = token.text.toLowerCase();
       if (lower === 'true' || lower === 'false') left = { kind: 'literal', value: lower === 'true' };
-      else if (lower === 'not') left = { kind: 'unary', op: 'not', value: parse(7) };
+      else if (lower === 'not') left = { kind: 'unary', op: 'not', value: parse(8) };
       else if (peek().text === '(') { take(); const args: Expr[] = []; if (peek().text !== ')') { for (;;) { args.push(parse(0)); if (peek().text !== ',') break; take(); } } if (take().text !== ')') throw new ExpressionError('Falta )', peek().pos); left = { kind: 'call', name: token.text, args }; }
       else left = { kind: 'identifier', name: token.text };
     } else if (token.text === '(') { left = parse(0); if (take().text !== ')') throw new ExpressionError('Falta )', peek().pos); }
-    else if (['-', '+', '!'].includes(token.text)) left = { kind: 'unary', op: token.text, value: parse(7) };
+    else if (['-', '+', '!'].includes(token.text)) left = { kind: 'unary', op: token.text, value: parse(8) };
     else throw new ExpressionError(`Se esperaba un valor, llegó “${token.text}”`, token.pos);
     while (peek().text === '[') { take(); const offset = parse(0); if (take().text !== ']') throw new ExpressionError('Falta ] en el índice del arreglo', peek().pos); left = { kind: 'index', array: left, offset }; }
     while (peek().type === 'operator' || peek().type === 'identifier') {
@@ -98,7 +98,7 @@ export function evaluateExpression(expr: Expr, scope: Scope, userFunction?: User
     case '-': if (typeof left === 'number' && typeof right === 'number') return left - right; break;
     case '*': if (typeof left === 'number' && typeof right === 'number') return left * right; break;
     case '/': if (typeof left === 'number' && typeof right === 'number') { if (right === 0) throw new Error('División entre cero.'); return left / right; } break;
-    case '%': if (typeof left === 'number' && typeof right === 'number') { if (right === 0) throw new Error('Módulo entre cero.'); return left % right; } break;
+    case 'mod': case '%': if (typeof left === 'number' && typeof right === 'number') { if (right === 0) throw new Error('Módulo entre cero.'); return left % right; } break;
     case '^': if (typeof left === 'number' && typeof right === 'number') return left ** right; break;
     case '<': case '<=': case '>': case '>=': {
       if (typeof left !== typeof right || typeof left === 'boolean') throw new Error(`No se pueden comparar ${String(left)} y ${String(right)}.`);

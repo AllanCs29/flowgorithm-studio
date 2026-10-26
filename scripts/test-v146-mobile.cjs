@@ -1,0 +1,23 @@
+// Revisión estructural sin dependencias. No sustituye las pruebas reales de pantalla.
+const fs=require('node:fs');
+const assert=require('node:assert/strict');
+const read=p=>fs.readFileSync(p,'utf8');
+const app=read('src/ui/App.tsx');
+const goal=read('src/ui/MissionObjective.tsx');
+const gestures=read('src/interaction/controller.ts');
+const canvas=read('src/ui/FlowchartCanvas.tsx');
+const css=read('src/ui/v14-6-mobile.css');
+const main=read('src/main.tsx');
+assert(goal.includes('aria-expanded={expanded}'), 'Tu meta debe tener aria-expanded');
+assert(goal.includes('v146-goal-preview'), 'La meta debe ofrecer un resumen al cerrar');
+assert(goal.includes('exerciseCriteria(exercise)'), 'Los criterios deben estar disponibles');
+assert(goal.includes('onHelp'), 'La ayuda opcional debe seguir accesible');
+assert(gestures.includes('longPressMs = 430'), 'Debe existir el umbral de pulsación larga');
+assert(gestures.includes("type: 'PAN_CANVAS'"), 'Deslizar no debe arrastrar');
+assert(gestures.includes("type: 'CANCEL_DRAG'"), 'Debe existir la cancelación segura');
+assert(canvas.includes('onPointerDown'), 'Los bloques deben recibir eventos pointer');
+assert(canvas.includes("p.node.type!=='Start'&&p.node.type!=='End'"), 'Inicio y Fin deben permanecer fijos');
+assert(css.includes('@media (max-width:760px)'), 'El cambio visual solo debe aplicarse a móvil');
+assert(main.includes("import './ui/v14-6-mobile.css';"), 'La hoja de estilos debe cargarse');
+assert(app.includes('Mantén presionado'), 'La interfaz debe explicar el gesto');
+console.log('OK: metas plegables, criterios, ayuda, gestos, flechas y escritorio protegido.');

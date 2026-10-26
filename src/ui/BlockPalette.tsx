@@ -11,8 +11,8 @@ const BLOCKS: ReadonlyArray<{ type: FlowNode['type']; icon: string; purpose: str
   { type: 'Do', icon: '⟳', purpose: 'Repetir al menos una vez', group: 'Decisiones y ciclos', supported: true },
   { type: 'For', icon: '∑', purpose: 'Contar repeticiones', group: 'Decisiones y ciclos', supported: true },
   { type: 'Comment', icon: '☷', purpose: 'Añadir una explicación', group: 'Avanzados', supported: true },
-  { type: 'Call', icon: 'ƒ', purpose: 'Funciones (sin ejecución)', group: 'Avanzados', supported: false },
-  { type: 'Return', icon: '↩', purpose: 'Retornar (sin ejecución)', group: 'Avanzados', supported: false }
+  { type: 'Call', icon: 'ƒ', purpose: 'Funciones (en el panel de Funciones)', group: 'Avanzados', supported: false },
+  { type: 'Return', icon: '↩', purpose: 'Retornar desde la función', group: 'Avanzados', supported: false }
 ];
 
 export function BlockPalette({ onInsert, canInsert, activeType, onHelp, onHelpBlock, suggestedType }: {
@@ -27,7 +27,7 @@ export function BlockPalette({ onInsert, canInsert, activeType, onHelp, onHelpBl
   const filtered = BLOCKS.filter(block => `${TYPE_LABELS[block.type]} ${block.purpose}`.toLowerCase().includes(filter.toLowerCase()));
   return <div className="palette-content">
     <div className="section-heading"><div><span className="eyebrow">BIBLIOTECA</span><h2>Piezas del diagrama</h2></div><button onClick={onHelp} title="Abrir guía de todos los bloques">Guía ↗</button></div>
-    <p className="sidebar-lead">Pulsa para elegir una pieza o arrástrala sobre un bloque. Después indica dónde colocarla.</p>
+    <p className="sidebar-lead"><span className="v142-palette-desktop">Pulsa para elegir una pieza o arrástrala sobre un bloque. Después indica dónde colocarla.</span><span className="v142-palette-mobile">Toca una pieza: no necesitas arrastrar. Después escribe sus datos; los ejemplos no se rellenan solos.</span></p>
     <label className="search-wrap"><span className="sr-only">Buscar bloques</span><input value={filter} onChange={e => setFilter(e.target.value)} placeholder="⌕  Buscar un bloque..." /></label>
     {(['Básicos', 'Decisiones y ciclos', 'Avanzados'] as const).map(group => {
       const blocks = filtered.filter(item => item.group === group);
@@ -42,6 +42,6 @@ export function BlockPalette({ onInsert, canInsert, activeType, onHelp, onHelpBl
       </div></section>;
     })}
     {filtered.length === 0 && <p className="empty">No encontramos ese bloque.</p>}
-    <p className="support-note">ⓘ abre un ejemplo antes de usar cada bloque. Las funciones avanzadas aún no se ejecutan.</p>
+    <p className="support-note">ⓘ abre un ejemplo para aprender a usar cada bloque. Las funciones se crean desde Opciones → Funciones.</p>
   </div>;
 }

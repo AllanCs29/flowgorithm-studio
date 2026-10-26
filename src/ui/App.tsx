@@ -16,9 +16,10 @@ import { appendVisualFrame, initialVisualFrame, snapshot, visualFrame, VisualFra
 import { VisualDebugger } from './VisualDebugger';
 import { exportFprg, importFprg } from '../compatibility/flowgorithm/fprg';
 import { loadLocal, openTextFile, saveLocal, saveTextFile } from '../storage/fileSystem';
-import { Exercise, gradeExercise, Lesson, lessons } from '../learning/learning';
+import { Exercise, exerciseCriteria, gradeExercise, Lesson, lessons } from '../learning/learning';
 import { exerciseForLesson, lessonCompleted } from '../learning/courseFlow';
 import { guidedTarget } from '../learning/lessonGuidance';
+import { firstIncompleteNode, incompleteMessage } from '../domain/blockCompleteness';
 import { insertionLabel, insertionTargets } from './workspaceModel';
 import { CourseHome } from './CourseHome';
 import { LessonScreen } from './LessonScreen';
@@ -32,13 +33,15 @@ import { LocalClassroomPanel } from './LocalClassroomPanel';
 import { ProjectGallery } from './ProjectGallery';
 import { CodeBridge } from './CodeBridge';
 import { DebugCoach } from './DebugCoach';
+import { MissionObjective } from './MissionObjective';
+import { shouldGuide } from './missionGoal';
 
 const COMPLETED_EXERCISES_KEY = 'flowgorithm-studio:completed-exercises';
 const KNOWN_BLOCKS_KEY = 'flowgorithm-studio:seen-blocks';
 const DRAFT_PREFIX = 'flowgorithm-studio:lesson-draft:';
 
 type Screen = 'home'|'lesson'|'editor'|'library'|'practice'|'classroom'|'projects';
-type EditorPanel = 'functions'|'none'|'pieces'|'properties'|'console'|'code'|'variables'|'help'|'blockIntro'|'placement'|'steps'|'files'|'tree'|'bridge';
+type EditorPanel = 'objective'|'functions'|'none'|'pieces'|'properties'|'console'|'code'|'variables'|'help'|'blockIntro'|'placement'|'steps'|'files'|'tree'|'bridge'|'review';
 
 function loadSet(key:string):Set<string> {
   try { const stored = localStorage.getItem(key); const data:unknown = stored?JSON.parse(stored):[]; return new Set(Array.isArray(data)?data.filter((x):x is string=>typeof x==='string'):[]); }
@@ -70,8 +73,8 @@ export function App():React.ReactElement {
   if (!dispatcherRef.current) dispatcherRef.current=new CommandDispatcher(state,next=>setState(next),()=>anchorRef.current,()=>currentFunctionRef.current);
   const dispatcher=dispatcherRef.current;
   const [panel,setPanel]=useState<EditorPanel>('none');
-  const [newFunctionName,setNewFunctionName]=useState('MiFuncion');
-  const [newFunctionArgs,setNewFunctionArgs]=useState('x:Integer');
+  const [newFunctionName,setNewFunctionName]=useState('');
+  const [newFunctionArgs,setNewFunctionArgs]=useState('');
   const [newFunctionType,setNewFunctionType]=useState<'Integer'|'Real'|'String'|'Boolean'>('Integer');
   const [activeExercise,setActiveExercise]=useState<Exercise|null>(null);
   const [completedExercises,setCompletedExercises]=useState<Set<string>>(()=>new Set(activeLearner(loadClassroom(localStorage)).completed));
@@ -79,6 +82,7 @@ export function App():React.ReactElement {
   const [pendingType,setPendingType]=useState<FlowNode['type']|null>(null);
   const [learningBlock,setLearningBlock]=useState<FlowNode['type']|null>(null);
   const [missionStep,setMissionStep]=useState(0);
+  const [guideEnabled,setGuideEnabled]=useState(false);
   const [showHint,setShowHint]=useState(false);
   const [feedback,setFeedback]=useState<readonly string[]>([]);
   const [passed,setPassed]=useState(false);
@@ -116,9 +120,17 @@ export function App():React.ReactElement {
   useEffect(()=>{try {const local=loadLocal();if(local){const parsed:unknown=JSON.parse(local);if(isProject(parsed)){setActiveFunctionId(parsed.mainFunctionId);setState({project:parsed,selectedIds:new Set()});}}}catch{/* Proyecto local opcional. */}},[]);
   const generated=useMemo(()=>{try {return {code:generateCode(toCoreIR(state.project,state.project.metadata.title||'FlowProgram'),language),error:''};}catch(error){return {code:'',error:error instanceof Error?error.message:String(error)};}},[state.project,language]);
   const currentStep=activeExercise?.instructions[Math.min(missionStep,activeExercise.instructions.length-1)];
-  const targetNode=activeExercise?guidedTarget(func,currentStep??'',selected?.id):undefined;
+  // Escritorio conserva la guía habitual; en teléfono se activa solo si el alumno la pide.
+  const mobileEditor=typeof window!=='undefined'&&typeof window.matchMedia==='function'&&window.matchMedia('(max-width: 760px)').matches;
+  const guidanceActive=shouldGuide(mobileEditor,guideEnabled);
+  const targetNode=activeExercise&&guidanceActive?guidedTarget(func,currentStep??'',selected?.id):undefined;
 
   const openLesson=(target:Lesson)=>{setLesson(target);setScreen('lesson');setPanel('none');setStatus(`Clase: ${target.title}`);};
+  const nextLessonFromExercise=()=>{
+    if (!activeExercise || activeExercise.id.startsWith('bank-')) {library();return;}
+    const index=lessons.findIndex(item=>item.id===activeExercise.lessonId);
+    if(index>=0 && index<lessons.length-1)openLesson(lessons[index+1]);else home();
+  };
   const home=()=>{setScreen('home');setPanel('none');setPendingType(null);setStatus('Tu avance está guardado en este navegador.');};
   const library=()=>{setScreen('library');setPanel('none');setPendingType(null);setStatus('Tus desafíos disponibles.');};
   const chooseExercise=(exercise:Exercise)=>{
@@ -127,7 +139,7 @@ export function App():React.ReactElement {
     setActiveFunctionId(project.mainFunctionId);setState({project,selectedIds:new Set()});
     const startContext=initialContext(project.functions[project.mainFunctionId]);
     setExecContext(startContext);setFrames([initialVisualFrame(startContext)]);setFrameCursor(0);setPlaying(false);
-    setActiveExercise(exercise);setIsFree(false);setPassed(false);setMissionStep(0);setFeedback([]);setShowHint(false);
+    setActiveExercise(exercise);setIsFree(false);setPassed(false);setMissionStep(0);setGuideEnabled(false);setFeedback([]);setShowHint(false);
     setInteractionHistory([]);setPendingType(null);setPanel('none');setZoom(1);setScreen('editor');setStatus('Toca un bloque del diagrama para comenzar.');
   };
   const startSelectedLesson=()=>{const exercise=exerciseForLesson(lesson.id);if(exercise)chooseExercise(exercise);};
@@ -141,7 +153,7 @@ export function App():React.ReactElement {
     recordAction({action:'select',type:func.nodes[id]?.type,id});
     if(func.nodes[id]?.type==='Output'&&!pendingType) recordAction({action:'edit',type:'Output',id});
     setPanel(pendingType?'placement':'properties');
-    if(activeExercise && missionStep===0 && (!targetNode || targetNode===id)) setMissionStep(1);
+    if(activeExercise && guidanceActive && missionStep===0 && (!targetNode || targetNode===id)) setMissionStep(1);
   };
   const insertAt=(position:InsertPosition,forcedAnchor?:NodeId,typeOverride?:FlowNode['type'])=>{
     const type=typeOverride??pendingType;
@@ -150,7 +162,7 @@ export function App():React.ReactElement {
     const target=func.nodes[anchor]??func.nodes[func.rootNodeId];
     const actual=target.type==='End'&&position==='After'?'Before':position;
     const inserted=dispatcher.insert(type,target.id,actual);
-    if(inserted){recordAction({action:'insert',type,id:inserted});anchorRef.current=inserted;dispatcher.setSelection(new Set([inserted]));setPanel('properties');setPendingType(null);setLearningBlock(null);setStatus(`Se añadió ${TYPE_LABELS[type]}. Configura sus propiedades y pulsa Guardar bloque.`);}
+    if(inserted){recordAction({action:'insert',type,id:inserted});anchorRef.current=inserted;dispatcher.setSelection(new Set([inserted]));setPanel('properties');setPendingType(null);setLearningBlock(null);setStatus(`Añadiste ${TYPE_LABELS[type]}. Ahora escribe sus datos; no hay respuestas prellenadas.`);}
     else {setStatus(dispatcher.getState().error??'No se pudo insertar aquí.');setPanel('placement');}
   };
   const beginInsert=(type:FlowNode['type'])=>{
@@ -160,6 +172,8 @@ export function App():React.ReactElement {
     else setPanel('placement');
   };
   const chooseBlock=(type:FlowNode['type'])=>{
+    // En teléfono, tocar una pieza la inserta directamente. La explicación es opcional en ⓘ.
+    if(window.matchMedia('(max-width: 760px)').matches){beginInsert(type);return;}
     if(!knownBlocks.has(type)){setLearningBlock(type);setPendingType(type);setPanel('blockIntro');}
     else beginInsert(type);
   };
@@ -170,12 +184,18 @@ export function App():React.ReactElement {
   };
   const updateNode=(updated:FlowNode)=>{
     dispatcher.updateNode(updated);setPanel('none');
-    setStatus(dispatcher.getState().error??'✓ Bloque guardado. Ahora ejecútalo o continúa siguiendo los pasos.');
-    if(activeExercise&&missionStep<activeExercise.instructions.length-1)setMissionStep(step=>step+1);
+    setStatus(dispatcher.getState().error??'✓ Bloque guardado. Puedes ejecutar o comprobar tu reto cuando quieras.');
+    if(activeExercise&&guidanceActive&&missionStep<activeExercise.instructions.length-1)setMissionStep(step=>step+1);
   };
   const deleteNode=(id:NodeId)=>{const previousType=func.nodes[id]?.type;const ok=dispatcher.delete(id);if(ok)recordAction({action:'delete',type:previousType,id});setStatus(ok?'Bloque eliminado':dispatcher.getState().error??'No se pudo eliminar');if(ok)setPanel('none');};
   const reset=()=>{recordAction({action:'reset'});const initial=initialContext(mainFunc);setExecContext(initial);setFrames([initialVisualFrame(initial)]);setFrameCursor(0);setPlaying(false);setRunMode('step');setShowInput(false);setInputText('');setStatus('Simulación reiniciada: pulsa Siguiente paso para volver a empezar.');};
   const executeStep=useCallback((input?:string, fromAnimation=false)=>{
+    const incomplete = firstIncompleteNode(mainFunc);
+    if (incomplete) {
+      setPlaying(false); setActiveFunctionId(state.project.mainFunctionId); dispatcher.setSelection(new Set([incomplete.node.id]));
+      setPanel('properties'); setStatus(incompleteMessage(incomplete.node, incomplete.field));
+      return;
+    }
     if(!fromAnimation)recordAction({action:'step'});
     if(['FINISHED','ERROR','STOPPED'].includes(execContext.status)) {setPlaying(false);return;}
     if(execContext.status==='WAITING_INPUT'&&input===undefined){setPlaying(false);setShowInput(true);return;}
@@ -188,8 +208,14 @@ export function App():React.ReactElement {
     if(input!==undefined)setInputText('');
     if(['FINISHED','ERROR','WAITING_INPUT'].includes(result.context.status))setPlaying(false);
     setStatus(result.context.error??(result.context.status==='FINISHED'?'¡Terminó! Puedes revisar cada paso en la línea de tiempo.':`Paso ${result.context.stepCount}: consulta la memoria visual.`));
-  },[recordAction,execContext,mainFunc,state.project,frames,frameCursor]);
+  },[recordAction,execContext,mainFunc,state.project,frames,frameCursor,dispatcher]);
   const executeAll=(input?:string)=>{
+    const incomplete = firstIncompleteNode(mainFunc);
+    if (incomplete) {
+      setPlaying(false); setActiveFunctionId(state.project.mainFunctionId); dispatcher.setSelection(new Set([incomplete.node.id]));
+      setPanel('properties'); setStatus(incompleteMessage(incomplete.node, incomplete.field));
+      return;
+    }
     setPlaying(false);setRunMode('all');setPanel('none');
     let context:ExecutionContext=execContext;
     let history=frames.slice(0,frameCursor+1);
@@ -212,7 +238,7 @@ export function App():React.ReactElement {
     setFrames(history);setFrameCursor(history.length-1);setExecContext(context);setShowInput(context.status==='WAITING_INPUT');
     if(context.status!=='WAITING_INPUT')setInputText('');
     setStatus(context.error??(context.status==='FINISHED'?'¡Ejecución terminada! Recorre el historial para comprenderla.':'Introduce el valor solicitado.'));
-    if(activeExercise&&missionStep<activeExercise.instructions.length-1)setMissionStep(step=>step+1);
+    if(activeExercise&&guidanceActive&&missionStep<activeExercise.instructions.length-1)setMissionStep(step=>step+1);
   };
   const seekFrame=(index:number)=>{
     const bounded=Math.max(0,Math.min(index,frames.length-1));
@@ -236,7 +262,7 @@ export function App():React.ReactElement {
     try {
     const parameters=newFunctionArgs.trim()?newFunctionArgs.split(',').map(part=>{const [parameterName,kind]=part.trim().split(':');if(!/^[A-Za-z_][A-Za-z_0-9]*$/.test(parameterName)||!['Integer','Real','String','Boolean'].includes(kind))throw new Error(`Parámetro inválido: ${part}. Usa nombre:Integer.`);return {name:parameterName,type:{kind:'Primitive' as const,type:kind as typeof newFunctionType}};}):[];
       const id=functionId(name),root=nodeId(`${name}_inicio`),ret=nodeId(`${name}_retornar`),end=nodeId(`${name}_fin`);
-      const expression=newFunctionType==='String'?'""':newFunctionType==='Boolean'?'false':'0';
+      const expression=''; // El valor de retorno lo elige quien está aprendiendo.
       const helper={id,name,parameters,returnType:{kind:'Primitive' as const,type:newFunctionType},rootNodeId:root,nodes:{[root]:{id:root,type:'Start' as const,next:ret},[ret]:{id:ret,type:'Return' as const,expression,next:end},[end]:{id:end,type:'End' as const}}};
       const next={...state.project,functions:{...state.project.functions,[id]:helper}};
       const check=validateProject(next);if(!check.valid)throw new Error(check.errors.join('; '));
@@ -245,9 +271,16 @@ export function App():React.ReactElement {
   };
   const grade=()=>{
     if(!activeExercise)return;
+    // Los micro-retos de selección/inserción evalúan el gesto, no exigen completar el contenido.
+    const incomplete = activeExercise.interaction ? null : firstIncompleteNode(mainFunc);
+    if (incomplete) {
+      setActiveFunctionId(state.project.mainFunctionId); dispatcher.setSelection(new Set([incomplete.node.id]));
+      setPanel('properties'); setStatus(incompleteMessage(incomplete.node, incomplete.field));
+      return;
+    }
     const result=activeExercise.interaction ? checkInteraction(activeExercise.interaction,mainFunc,interactionHistory) : gradeExercise(activeExercise,mainFunc,inputs=>runToCompletion(mainFunc,inputs,7000,state.project));
     setFeedback(result.feedback);setPassed(result.passed);
-    if(!result.passed){setPanel('console');setStatus('Todavía no pasa todas las pruebas. Revisa las pistas.');return;}
+    if(!result.passed){setPanel('review');setStatus('Revisa qué parte del diagrama falta. Tu avance sigue guardado.');return;}
     const nextCompleted=new Set(completedExercises);nextCompleted.add(activeExercise.id);
     setCompletedExercises(nextCompleted);persistSet(COMPLETED_EXERCISES_KEY,nextCompleted);
     setClassroom(previous=>completeExercise(previous,activeExercise.id));
@@ -273,51 +306,64 @@ export function App():React.ReactElement {
   if(screen==='library')return <ChallengeLibrary completed={completedExercises} onBack={home} onBegin={startBankChallenge}/>;
   if(screen==='lesson')return <LessonScreen key={lesson.id} lesson={lesson} completed={lessonCompleted(lesson.id,completedExercises)} onPreviousLesson={()=>{const index=lessons.findIndex(item=>item.id===lesson.id);if(index>0)openLesson(lessons[index-1]);}} onBack={home} onLaunch={startSelectedLesson}/>;
 
-  const panelTitle:Record<EditorPanel,string>={functions:'Mis funciones',none:'',pieces:'Añadir una pieza',properties:'Editar bloque',console:'Resultado del programa',code:'Código generado',variables:'Variables',help:'Cómo usar el editor',blockIntro:'Conoce esta pieza',placement:'¿Dónde la colocamos?',steps:'Tu misión paso a paso',files:'Mi proyecto',tree:'Estructura del diagrama',bridge:'Del diagrama al código'};
+  const panelTitle:Record<EditorPanel,string>={objective:'Tu meta del reto',functions:'Mis funciones',none:'',pieces:'Añadir una pieza',properties:'Editar bloque',console:'Resultado del programa',code:'Código generado',variables:'Variables',help:'Cómo usar el editor',blockIntro:'Conoce esta pieza',placement:'¿Dónde la colocamos?',steps:'Tu misión paso a paso',files:'Mi proyecto',tree:'Estructura del diagrama',bridge:'Del diagrama al código',review:'Revisa tu reto'};
   const panelContent=():React.ReactNode=>{
     switch(panel){
+      case 'objective':return activeExercise?<div className="v5-sheet-inner v145-objective-sheet"><div className="v5-chip">ANTES DE EMPEZAR</div><h3>{activeExercise.title}</h3><p>{activeExercise.goal}</p><div className="v143-rubric"><strong>¿Qué se revisará?</strong><ul>{exerciseCriteria(activeExercise).map(item=><li key={item}>{item}</li>)}</ul></div><p className="v5-muted">Puedes resolverlo a tu manera. No necesitas seguir los pasos de la guía para aprobar.</p><button className="v5-cta v5-full" onClick={()=>setPanel('none')}>Entendido, intentar mi reto →</button><button className="v5-secondary-wide" onClick={()=>setPanel('steps')}>Necesito ayuda paso a paso</button></div>:null;
       case 'pieces':return <BlockPalette canInsert={true} activeType={pendingType} suggestedType={activeExercise?.requiredTypes[0]} onInsert={chooseBlock} onHelp={()=>setPanel('help')} onHelpBlock={type=>{setLearningBlock(type);setPendingType(type);setPanel('blockIntro');}}/>;
       case 'blockIntro':{
         const relevant=lessons.find(item=>item.block===learningBlock);
         return <div className="v5-sheet-inner v5-block-explain"><div className="v5-giant-block">{learningBlock==='If'?'◇':['While','Do','For'].includes(learningBlock??'')?'↻':'▱'}</div><div className="v5-chip">CONOCE LA PIEZA ANTES DE USARLA</div><h3>{learningBlock?TYPE_LABELS[learningBlock]:''}</h3><p>{relevant?.summary??'Esta pieza forma parte de tu diagrama de flujo.'}</p><div className="v5-example"><span>UN EJEMPLO</span><strong>{relevant?.example??'Inicio → bloque → Fin'}</strong></div><p className="v5-note">Primero selecciona un bloque en el diagrama. Después podrás agregar esta pieza y configurar sus propiedades.</p><button className="v5-cta v5-full" onClick={confirmBlockTutorial}>Entendido, agregar pieza →</button><button className="v5-link-btn" onClick={()=>setPanel('pieces')}>← Ver otras piezas</button></div>;
       }
-      case 'placement':return <div className="v5-sheet-inner"><div className="v5-chip">PASO 2 DE 3</div><h3>¿Dónde ponemos {pendingType?TYPE_LABELS[pendingType]:'la pieza'}?</h3><p>Seleccionaste <strong>{func.nodes[chosenAnchor]?TYPE_LABELS[func.nodes[chosenAnchor].type]:'Inicio'}</strong>. Elige en qué camino se colocará tu nueva pieza.</p><div className="v5-place-options">{destinations.map(position=><button key={position} onClick={()=>insertAt(position)}>{insertionLabel(position)} <span>→</span></button>)}</div><button className="v5-secondary-wide" onClick={()=>setPanel('none')}>👆 Elegir otro bloque en el diagrama</button><button className="v5-link-btn" onClick={()=>setPanel('pieces')}>← Cambiar pieza</button></div>;
-      case 'properties':return <div className="v5-properties-content"><p className="v5-muted">{selected?'Edita el bloque seleccionado y guarda los cambios.':'Toca un bloque del diagrama para seleccionarlo.'}</p><PropertyInspector node={selected} onSave={updateNode} onDelete={deleteNode} onCancel={node=>recordAction({action:'cancel',type:node.type,id:node.id})}/><button className="v5-secondary-wide" onClick={()=>setPanel('pieces')}>＋ Añadir otra pieza</button></div>;
-      case 'console':return <div className="v5-sheet-inner"><p className="v5-muted">Aquí aparece lo que muestra tu programa al ejecutarse.</p><div className="v5-runtime-status">● {execContext.status==='FINISHED'?'Finalizado':execContext.status==='WAITING_INPUT'?'Esperando una respuesta':execContext.status==='ERROR'?'Error':`Paso ${execContext.stepCount}`}</div><pre className="v5-console-output" aria-live="polite">{execContext.outputLog.join('')||'Tu resultado aparecerá aquí después de ejecutar.'}</pre>{execContext.error&&<p role="alert" className="v5-error">{execContext.error}</p>}{execContext.status==='WAITING_INPUT'&&<button className="v5-cta v5-full" onClick={()=>setShowInput(true)}>Escribir mi respuesta →</button>}{feedback.length>0&&!passed&&<div role="alert" className="v5-feedback"><h3>Revisa tu solución</h3>{feedback.map((line,i)=><p key={i}>{line}</p>)}</div>}{(execContext.error || (feedback.length>0&&!passed))&&<DebugCoach error={execContext.error??feedback.join(' ')} func={mainFunc} onReview={()=>setPanel('none')}/>} {activeExercise&&<button className="v5-secondary-wide" onClick={grade}>✓ Comprobar mi solución</button>}</div>;
+      case 'placement':return <div className="v5-sheet-inner"><div className="v5-chip">PASO 2 DE 3</div><h3>¿Dónde ponemos {pendingType?TYPE_LABELS[pendingType]:'la pieza'}?</h3><p>Seleccionaste <strong>{func.nodes[chosenAnchor]?TYPE_LABELS[func.nodes[chosenAnchor].type]:'Inicio'}</strong>. Elige en qué camino se colocará tu nueva pieza.</p><div className="v5-place-options">{destinations.map(position=><button key={position} onClick={()=>insertAt(position)}><span className="v142-place-copy"><strong>{insertionLabel(position)}</strong><small>{position==='InsideTrue'?'Cuando la condición sea verdadera':position==='InsideFalse'?'Cuando la condición sea falsa':position==='InsideBody'?'Dentro de la repetición':position==='After'?'A continuación, fuera de las ramas':'Justo antes de terminar'}</small></span><span aria-hidden="true">→</span></button>)}</div><button className="v5-secondary-wide" onClick={()=>setPanel('none')}>👆 Elegir otro bloque en el diagrama</button><button className="v5-link-btn" onClick={()=>setPanel('pieces')}>← Cambiar pieza</button></div>;
+      case 'properties':return <div className="v5-properties-content"><p className="v5-muted">{selected?'Paso 2: escribe tus datos y guarda. Los ejemplos no son respuestas.':'Toca un bloque del diagrama para seleccionarlo.'}</p><PropertyInspector node={selected} requiresReturn={Boolean(func.returnType)} onSave={updateNode} onDelete={deleteNode} onCancel={node=>recordAction({action:'cancel',type:node.type,id:node.id})}/><button className="v5-secondary-wide" onClick={()=>setPanel('pieces')}>＋ Añadir otra pieza</button></div>;
+      case 'console':return <div className="v5-sheet-inner"><p className="v5-muted">Aquí aparece lo que muestra tu programa al pulsar Ejecutar. Comprobar usa sus propios casos de prueba y no modifica esta pantalla.</p><div className="v5-runtime-status">● {execContext.status==='FINISHED'?'Finalizado':execContext.status==='WAITING_INPUT'?'Esperando una respuesta':execContext.status==='ERROR'?'Error':execContext.status==='IDLE'?'Aún no has ejecutado':`Paso ${execContext.stepCount}`}</div><pre className="v5-console-output" aria-live="polite">{execContext.outputLog.join('')||'Tu resultado aparecerá aquí después de ejecutar.'}</pre>{execContext.error&&<p role="alert" className="v5-error">{execContext.error}</p>}{execContext.status==='WAITING_INPUT'&&<button className="v5-cta v5-full" onClick={()=>setShowInput(true)}>Escribir mi respuesta →</button>}{feedback.length>0&&!passed&&<div role="alert" className="v5-feedback"><h3>Revisa tu solución</h3>{feedback.map((line,i)=><p key={i}>{line}</p>)}</div>}{(execContext.error || (feedback.length>0&&!passed))&&<DebugCoach error={execContext.error??feedback.join(' ')} func={mainFunc} onReview={()=>setPanel('none')}/>} {activeExercise&&<button className="v5-secondary-wide" onClick={grade}>✓ Comprobar mi solución</button>}</div>;
+      case 'review':return <div className="v5-sheet-inner v143-review"><span className="v5-chip">TE AYUDAMOS A CORREGIRLO</span><h3>Aún falta un detalle</h3><p>No necesitas conseguir un número secreto. Evaluamos las piezas, su orden y los cálculos que pide esta misión.</p><div className="v143-review-errors" role="alert">{feedback.map((line,index)=><div key={index}><strong>Por revisar {index+1}</strong><p>{line}</p></div>)}</div><button className="v5-cta v5-full" onClick={()=>setPanel('none')}>← Regresar a mi diagrama</button><button className="v5-secondary-wide" onClick={()=>setPanel('steps')}>Ver los pasos de mi misión</button><button className="v5-link-btn" onClick={()=>setPanel('code')}>〈/〉 Ver cómo se traduce mi diagrama a código</button></div>;
       case 'variables':return <div className="v5-sheet-inner"><p>Observa cómo cambian los datos al ejecutar cada bloque.</p><div className="v5-var-list">{Object.keys(execContext.variables).length?Object.entries(execContext.variables).map(([key,value])=><div key={key}><strong>{key}</strong><code>{JSON.stringify(value)}</code></div>):<p>Todavía no hay variables. Prueba Declarar y Asignar.</p>}</div></div>;
       case 'code':return <CodePanel code={generated.code} language={language} onLanguage={setLanguage} error={generated.error}/>;
       case 'bridge':return <CodeBridge node={selected} language={language} onLanguage={setLanguage} onFullCode={()=>setPanel('code')}/>;
       case 'tree':return <div className="v5-sheet-inner"><StructureTree func={func} selectedId={selected?.id} onSelect={id=>selectNode(id,false)}/></div>;
-      case 'steps':return <div className="v5-sheet-inner"><div className="v5-chip">GUÍA PASO A PASO</div><h3>{activeExercise?.title??'Construye tu algoritmo'}</h3>{activeExercise?<><p>{activeExercise.goal}</p><ol className="v5-step-list">{activeExercise.instructions.map((step,i)=><li key={step} className={i===missionStep?'current':''}><button onClick={()=>setMissionStep(i)}><span>{i+1}</span>{step}</button></li>)}</ol><button className="v5-secondary-wide" onClick={()=>setShowHint(v=>!v)}>{showHint?'Ocultar pista':'💡 Necesito una pista'}</button>{showHint&&<p className="v5-hint">{activeExercise.hint}</p>}<button className="v5-cta v5-full" onClick={grade}>✓ Comprobar reto</button></>:<p>Selecciona una pieza y después el bloque donde quieras colocarla.</p>}</div>;
-      case 'help':return <div className="v5-sheet-inner"><div className="v5-chip">GUÍA RÁPIDA</div><h3>No necesitas saber programar</h3><div className="v5-help-steps"><p><b>1. Toca un bloque</b> en el diagrama para seleccionarlo.</p><p><b>2. Pulsa + Pieza</b> y elige una instrucción nueva.</p><p><b>3. Configura</b> sus valores en Editar bloque.</p><p><b>4. Pulsa Ejecutar</b> y observa qué sucedió en Resultado.</p><p><b>5. Comprueba tu reto</b> para abrir la siguiente clase.</p></div><button className="v5-secondary-wide" onClick={()=>setPanel('pieces')}>Explorar piezas →</button></div>;
+      case 'steps':return <div className="v5-sheet-inner"><div className="v5-chip">AYUDA OPCIONAL · PASO A PASO</div><h3>{activeExercise?.title??'Construye tu algoritmo'}</h3>{activeExercise?<><p>Si prefieres intentarlo solo, cierra esta guía. Los siguientes pasos son pistas, no requisitos para aprobar.</p><button className="v5-secondary-wide" onClick={()=>setGuideEnabled(value=>!value)}>{guideEnabled?'Desactivar resaltado de la guía':'Activar resaltado de los bloques'}</button><ol className="v5-step-list">{activeExercise.instructions.map((step,i)=><li key={step} className={i===missionStep?'current':''}><button onClick={()=>setMissionStep(i)}><span>{i+1}</span>{step}</button></li>)}</ol><button className="v5-secondary-wide" onClick={()=>setShowHint(v=>!v)}>{showHint?'Ocultar pista':'💡 Necesito una pista'}</button>{showHint&&<p className="v5-hint">{activeExercise.hint}</p>}<button className="v5-cta v5-full" onClick={grade}>✓ Comprobar reto</button></>:<p>Selecciona una pieza y después el bloque donde quieras colocarla.</p>}</div>;
+      case 'help':return <div className="v5-sheet-inner"><div className="v5-chip">GUÍA RÁPIDA</div><h3>No necesitas saber programar</h3><div className="v5-help-steps"><p><b>1. Toca un bloque</b> en el diagrama para seleccionarlo.</p><p><b>2. Pulsa Añadir</b> y elige una instrucción nueva.</p><p><b>3. Configura</b> sus valores en Editar bloque.</p><p><b>4. Pulsa Ejecutar</b> y observa qué sucedió en Resultado.</p><p><b>5. Comprueba tu reto</b> para abrir la siguiente clase.</p></div><button className="v5-secondary-wide" onClick={()=>setPanel('pieces')}>Explorar piezas →</button></div>;
       case 'functions':return <div className="v5-sheet-inner"><div className="v5-chip">FUNCIONES DE TU ALGORITMO</div><h3>Divide el problema en piezas</h3><p>Cada función tiene su propio diagrama. Los parámetros reciben valores al llamar y Retornar entrega un resultado. Toca una función para editar sus bloques.</p><div className="v7-function-list">{Object.values(state.project.functions).map(item=><button key={item.id} className={func.id===item.id?'active':''} onClick={()=>{setActiveFunctionId(item.id);anchorRef.current=item.rootNodeId;dispatcher.setSelection(new Set());setPanel('none');setStatus(`Editando función ${item.name}. Para ejecutar se usa Main.`);}}><strong>{item.name}({item.parameters.map(p=>p.name).join(', ')})</strong><small>{item.id===state.project.mainFunctionId?'Función principal':`Retorna ${item.returnType?.kind==='Primitive'?item.returnType.type:'sin tipo'}`}</small></button>)}</div><div className="v7-create-function"><h4>Crear una función</h4><label>Nombre de función<input value={newFunctionName} onChange={e=>setNewFunctionName(e.target.value)} placeholder="doble"/></label><label>Parámetros (nombre:Tipo, separados por coma)<input value={newFunctionArgs} onChange={e=>setNewFunctionArgs(e.target.value)} placeholder="x:Integer, y:Real"/></label><label>Tipo de retorno<select value={newFunctionType} onChange={e=>setNewFunctionType(e.target.value as typeof newFunctionType)}>{(['Integer','Real','String','Boolean'] as const).map(t=><option key={t}>{t}</option>)}</select></label><button className="v5-cta v5-full" onClick={createFunction}>＋ Crear y editar función</button></div></div>;
-      case 'files':return <div className="v5-sheet-inner"><h3>Tu proyecto</h3><p>Estos controles afectan tu diagrama, no borran el progreso de las clases.</p><label className="v5-file-name">Nombre del proyecto<input value={state.project.metadata.title} onChange={e=>setState(current=>({...current,project:{...current.project,metadata:{...current.project.metadata,title:e.target.value}}}))}/></label><div className="v5-file-buttons"><button onClick={newProject}>＋ Diagrama nuevo</button><button onClick={importProject}>↗ Abrir JSON / .fprg</button><button onClick={saveProject}>↓ Guardar JSON</button><button onClick={saveFprg}>↓ Exportar .fprg</button><button onClick={()=>{dispatcher.undo();setStatus('Deshacer');}}>↶ Deshacer</button><button onClick={()=>{dispatcher.redo();setStatus('Rehacer');}}>↷ Rehacer</button><button onClick={()=>setPanel('functions')}>ƒ Funciones del algoritmo</button><button onClick={()=>setPanel('code')}>〈/〉 Código generado</button><button onClick={()=>setPanel('variables')}>▤ Ver variables</button><button onClick={()=>{setOrientation(o=>o==='Vertical'?'Horizontal':'Vertical');setPanel('none');}}>↔ Cambiar orientación</button><button onClick={()=>setPanel('tree')}>☷ Árbol de bloques</button></div></div>;
+      case 'files':return <div className="v5-sheet-inner"><h3>Tu proyecto</h3><p>Estos controles afectan tu diagrama, no borran el progreso de las clases.</p><label className="v5-file-name">Nombre del proyecto<input value={state.project.metadata.title} onChange={e=>setState(current=>({...current,project:{...current.project,metadata:{...current.project.metadata,title:e.target.value}}}))}/></label><div className="v5-file-buttons"><button onClick={()=>setPanel('help')}>? Cómo usar el editor</button><button onClick={newProject}>＋ Diagrama nuevo</button><button onClick={importProject}>↗ Abrir JSON / .fprg</button><button onClick={saveProject}>↓ Guardar JSON</button><button onClick={saveFprg}>↓ Exportar .fprg</button><button onClick={()=>{dispatcher.undo();setStatus('Deshacer');}}>↶ Deshacer</button><button onClick={()=>{dispatcher.redo();setStatus('Rehacer');}}>↷ Rehacer</button><button onClick={()=>setPanel('functions')}>ƒ Funciones del algoritmo</button><button onClick={()=>setPanel('code')}>〈/〉 Código generado</button><button onClick={()=>setPanel('variables')}>▤ Ver variables</button><button onClick={()=>{setOrientation(o=>o==='Vertical'?'Horizontal':'Vertical');setPanel('none');}}>↔ Cambiar orientación</button><button onClick={()=>setPanel('tree')}>☷ Árbol de bloques</button></div></div>;
       case 'none':return null;
     }
   };
 
   return <div className="v5-editor">
-    <header className="v5-editor-top"><button className="v5-editor-home" onClick={activeExercise?.id.startsWith('bank-')?library:home} aria-label="Volver a mis clases">← <span>{activeExercise?.id.startsWith('bank-')?'100 retos':'Mis clases'}</span></button><div className="v5-editor-brand"><span className="v5-editor-mark">◇</span><div><strong>{activeExercise?activeExercise.title:state.project.metadata.title}</strong><small>{activeExercise?`NIVEL ${activeExercise.level} · MISIÓN PRÁCTICA`:'EDITOR LIBRE'}</small></div></div><div className="v5-header-actions">{Object.keys(state.project.functions).length>1&&<button onClick={()=>setPanel('functions')}>ƒ <span>{func.name}</span></button>}<button onClick={()=>setPanel('bridge')} title="Del diagrama al código">{'</>'} <span>Código visual</span></button><button onClick={()=>setPanel('help')} title="Ayuda">? <span>Ayuda</span></button><button onClick={()=>setPanel('files')} title="Archivos y opciones">☰ <span>Opciones</span></button></div></header>
+    <header className="v5-editor-top"><button className="v5-editor-home" onClick={activeExercise?.id.startsWith('bank-')?library:home} aria-label="Volver a mis clases">← <span>{activeExercise?.id.startsWith('bank-')?'100 retos':'Mis clases'}</span></button><div className="v5-editor-brand"><span className="v5-editor-mark">◇</span><div><strong>{activeExercise?activeExercise.title:state.project.metadata.title}</strong><small>{activeExercise?`NIVEL ${activeExercise.level} · MISIÓN PRÁCTICA`:'EDITOR LIBRE'}</small></div></div><div className="v5-header-actions"><button className="v143-mobile-code" onClick={()=>setPanel('code')} aria-label="Ver código generado" title="Código generado">〈/〉</button>{Object.keys(state.project.functions).length>1&&<button onClick={()=>setPanel('functions')}>ƒ <span>{func.name}</span></button>}<button className="v142-header-advanced" onClick={()=>setPanel('bridge')} title="Del diagrama al código">{'</>'} <span>Código visual</span></button><button className="v142-header-help" onClick={()=>setPanel('help')} title="Ayuda">? <span>Ayuda</span></button><button className="v142-header-menu" onClick={()=>setPanel('files')} title="Archivos y opciones">☰ <span>Opciones</span></button></div></header>
     <main className={`v5-editor-body ${isFree?'v5-is-free':''}`} >
       {activeExercise&&<aside className="v5-coach" aria-label="Pasos de tu misión"><div className="v5-coach-top"><span className="v5-overline">TU MISIÓN · NIVEL {activeExercise.level}</span><h2>{activeExercise.title}</h2><p>{activeExercise.goal}</p></div><div className="v5-coach-list">{activeExercise.instructions.map((step,index)=><button key={step} className={`v5-coach-step ${missionStep===index?'current':''} ${index<missionStep?'done':''}`} onClick={()=>setMissionStep(index)}><span>{index<missionStep?'✓':index+1}</span><strong>{step}</strong></button>)}</div><div className="v5-coach-bottom"><button className="v5-link-btn" onClick={()=>setShowHint(v=>!v)}>💡 {showHint?'Ocultar pista':'Necesito una pista'}</button>{showHint&&<p className="v5-hint">{activeExercise.hint}</p>}<button className="v5-cta v5-full" onClick={grade}>✓ Comprobar reto</button><button className="v5-link-btn" onClick={()=>activeExercise.id.startsWith('bank-')?library():openLesson(lesson)}>Volver al tutorial →</button><button className="v10-coach-practice" onClick={openPractice}>✦ Practicar conceptos sin editar un diagrama</button></div></aside>}
       <section className="v5-editor-main" aria-label="Editor interactivo">
-        {activeExercise&&<div className="v5-mobile-coach" role="status"><div><span>PASO {missionStep+1} DE {activeExercise.instructions.length}</span><strong>{currentStep}</strong></div><button onClick={()=>setPanel('steps')}>Ver pasos <span>→</span></button></div>}
+        {activeExercise&&<MissionObjective exercise={activeExercise} onHelp={()=>setPanel('steps')}/>}
         <div className="v5-editor-toolbar"><div className="v5-editor-toolbar-heading"><span>◇ TU DIAGRAMA</span><strong>{isFree?'Haz realidad tu algoritmo':'¡Ahora te toca a ti!'}</strong><small>{isFree?'Construye, experimenta y ejecuta.': 'Toca un bloque para editarlo. Puedes corregirlo cuantas veces quieras.'}</small></div><div className="v5-zoom-controls"><button onClick={()=>setZoom(v=>Math.max(.55,Math.round((v-.15)*100)/100))} title="Alejar" aria-label="Alejar">−</button><span>{Math.round(zoom*100)}%</span><button onClick={()=>setZoom(v=>Math.min(1.5,Math.round((v+.15)*100)/100))} title="Acercar" aria-label="Acercar">+</button></div></div>
+        <div className="v142-mobile-tip" aria-live="polite">
+          <span className="v142-tip-dot" aria-hidden="true">●</span>
+          <span>{pendingType ? 'Elige dónde va la pieza.':selected ? `Edita ${TYPE_LABELS[selected.type]} en el panel que se abrió.` : targetNode ? 'Toca el bloque iluminado si estás siguiendo la guía.' : 'Toca un bloque para editarlo. Mantén presionado para moverlo; desliza el fondo para recorrer el diagrama.'}</span>
+        </div>
+        {status.startsWith('Antes de ejecutar,') && <button type="button" className="v142-inline-alert" onClick={()=>setPanel('properties')}>⚠ {status} <strong>Editar →</strong></button>}
         <div className="v5-canvas-wrap"><FlowchartCanvas func={func} selectedIds={state.selectedIds} activeNodeId={activeNode} guidedNodeId={targetNode} onSelect={selectNode} orientation={orientation} zoom={zoom} pendingType={pendingType}
           onInsertAt={(anchor,position)=>insertAt(position,anchor)} onDropPalette={(type,anchor,position)=>{if(!knownBlocks.has(type)){setLearningBlock(type);setPendingType(type);setPanel('blockIntro');}else insertAt(position??'After',anchor,type);}}
-          activeDecision={activeFunctionId===state.project.mainFunctionId?frames[frameCursor]?.decision:undefined} nextNodeId={activeFunctionId===state.project.mainFunctionId?execContext.currentNodeId:undefined}
+          activeDecision={activeFunctionId===state.project.mainFunctionId?frames[frameCursor]?.decision:undefined} nextNodeId={activeFunctionId===state.project.mainFunctionId&&!(mobileEditor&&execContext.status==='IDLE')?execContext.currentNodeId:undefined}
           onMove={(id,anchor,position)=>{const ok=dispatcher.move(id,anchor,position);setStatus(ok?'Bloque colocado correctamente.':dispatcher.getState().error??'No se pudo mover');}}/>
-          <div className="v5-canvas-help">{pendingType?'👆 Elige el bloque de referencia':targetNode?'✨ Toca el bloque iluminado':selected?`✓ Seleccionado: ${TYPE_LABELS[selected.type]}`:'👆 Toca un bloque para empezar'}<button onClick={()=>setPanel('pieces')}>＋ Añadir pieza</button></div>
+          <div className="v5-canvas-help">{pendingType?'👆 Elige el bloque de referencia':targetNode?'✨ Sigue el bloque señalado por la guía':selected?`✓ Seleccionado: ${TYPE_LABELS[selected.type]}`:'Toca para editar · Mantén pulsado para mover'}<button onClick={()=>setPanel('pieces')}>＋ Añadir pieza</button></div>
         </div>
         <VisualDebugger func={mainFunc} frames={frames} cursor={frameCursor} playing={playing} speed={playSpeed} onSeek={seekFrame} onStep={()=>executeStep()} onPlay={()=>setPlaying(current=>!current)} onSpeed={setPlaySpeed} onReset={reset} onRun={()=>executeAll()} onInput={()=>setShowInput(true)}/>
         <div className="v5-editor-controls"><div className="v5-control-group"><button className="v5-run-secondary" onClick={reset}>↺ <span>Reiniciar</span></button><button className="v5-run-secondary" onClick={()=>execContext.status==='WAITING_INPUT'?setShowInput(true):executeStep()} disabled={!canRun}>↷ <span>Paso a paso</span></button><button className="v5-run-primary" onClick={()=>execContext.status==='WAITING_INPUT'?setShowInput(true):executeAll()} disabled={!canRun}>{'▶'} {runLabel}</button></div><div className="v5-execution-note">{execContext.status==='IDLE'?'Listo para comenzar':execContext.status==='FINISHED'?'✓ Terminó':execContext.status==='WAITING_INPUT'?'⌨ Esperando un dato':execContext.status==='ERROR'?'⚠ Error':`Paso ${execContext.stepCount}`}</div></div>
-        {activeExercise&&<div className="v5-mobile-check"><button onClick={grade}>✓ Comprobar mi reto</button><button onClick={()=>{setMissionStep(i=>Math.min(activeExercise.instructions.length-1,i+1));setPanel('none');}}>Siguiente paso →</button></div>}
       </section>
     </main>
-    <nav className="v5-dock" aria-label="Herramientas del editor"><button className={panel==='steps'?'active':''} onClick={()=>activeExercise?setPanel('steps'):home()}><span>◎</span><small>{activeExercise?'Mi reto':'Inicio'}</small></button><button className={panel==='pieces'?'active':''} onClick={()=>setPanel('pieces')}><span>⊞</span><small>Piezas</small></button><button className={panel==='properties'?'active':''} onClick={()=>setPanel('properties')}><span>✎</span><small>Editar</small></button><button className={panel==='console'?'active':''} onClick={()=>setPanel('console')}><span>▤</span><small>Resultado</small></button><button className={panel==='files'?'active':''} onClick={()=>setPanel('files')}><span>☰</span><small>Más</small></button></nav>
-    {panel!=='none'&&<div className={`v5-panel-layer ${panel==='pieces'?'v5-panel-pieces':''}`}><button className="v5-panel-scrim" onClick={()=>{setPanel('none');setPendingType(null);}} aria-label="Cerrar panel"/><aside className="v5-editor-sheet" role="dialog" aria-modal={panel!=='pieces'} aria-label={panelTitle[panel]}><header><div className="v5-sheet-grip"/><strong>{panelTitle[panel]}</strong><button aria-label="Cerrar panel" onClick={()=>{setPanel('none');setPendingType(null);}}>✕</button></header><div className="v5-sheet-scroll">{panelContent()}</div></aside></div>}
+    <nav className="v5-dock" aria-label="Acciones principales del editor">
+      <button type="button" className={panel==='pieces'?'active':''} onClick={()=>setPanel('pieces')} aria-label="Agregar pieza al diagrama"><span aria-hidden="true">＋</span><small>Añadir</small></button>
+      <button type="button" onClick={()=>execContext.status==='WAITING_INPUT'?setShowInput(true):executeStep()} disabled={!canRun} aria-label="Ejecutar un paso"><span aria-hidden="true">↷</span><small>Un paso</small></button>
+      <button type="button" className="v14m-dock-run" onClick={()=>canRun?(execContext.status==='WAITING_INPUT'?setShowInput(true):executeAll()):reset()} disabled={playing} aria-label={canRun?'Ejecutar todo el algoritmo':'Reiniciar la ejecución'}><span aria-hidden="true">{canRun?'▶':'↺'}</span><small>{canRun?'Ejecutar':'Reiniciar'}</small></button>
+      {activeExercise
+        ? <button type="button" className="v14m-dock-check" onClick={grade} aria-label="Comprobar el reto"><span aria-hidden="true">✓</span><small>Comprobar</small></button>
+        : <button type="button" className={panel==='console'?'active':''} onClick={()=>setPanel('console')} aria-label="Ver resultados"><span aria-hidden="true">▤</span><small>Resultado</small></button>}
+    </nav>
+    {panel!=='none'&&<div className={`v5-panel-layer v143-panel-${panel} ${panel==='pieces'?'v5-panel-pieces':''}`}><button className="v5-panel-scrim" onClick={()=>{setPanel('none');setPendingType(null);}} aria-label="Cerrar panel"/><aside className="v5-editor-sheet" role="dialog" aria-modal={panel!=='pieces'} aria-label={panelTitle[panel]}><header><div className="v5-sheet-grip"/><strong>{panelTitle[panel]}</strong><button aria-label="Cerrar panel" onClick={()=>{setPanel('none');setPendingType(null);}}>✕</button></header><div className="v5-sheet-scroll">{panelContent()}</div></aside></div>}
     {showInput&&<div className="v5-input-overlay"><form className="v5-input-form" onSubmit={e=>{e.preventDefault();if(runMode==='all')executeAll(inputText);else executeStep(inputText);}}><div className="v5-chip">TU PROGRAMA TE PREGUNTA</div><h2>Escribe un valor</h2><p>Introduce el dato para <strong>{execContext.pendingInput}</strong>.</p>{execContext.error&&<p role="alert" className="v5-error">{execContext.error}</p>}<input autoFocus aria-label="Valor de entrada" value={inputText} onChange={e=>setInputText(e.target.value)}/><button className="v5-cta v5-full" type="submit">Continuar →</button><button className="v5-link-btn" type="button" onClick={()=>setShowInput(false)}>Cerrar por ahora</button></form></div>}
-    {passed&&activeExercise&&<div className="v5-victory-overlay" role="dialog" aria-modal="true" aria-label="Reto superado"><div className="v5-victory"><span className="v5-victory-star">★</span><span className="v5-chip">MISIÓN SUPERADA</span><h2>¡Lo conseguiste!</h2><p>Tu algoritmo pasó {activeExercise.tests.length} {activeExercise.tests.length===1?'prueba':'pruebas'} automáticamente. {activeExercise.id.startsWith('bank-')?'Este reto cuenta para tu progreso en el laboratorio.':'Has desbloqueado tu siguiente lección.'}</p><div className="v5-victory-stars">★ ★ ★</div><button className="v5-cta v5-full" onClick={()=>{setPassed(false);if(activeExercise.id.startsWith('bank-'))library();else home();}}>{activeExercise.id.startsWith('bank-')?'Explorar otro reto →':'Ver mi siguiente clase →'}</button><button className="v5-link-btn" onClick={()=>{setPassed(false);reset();}}>Practicar otra vez</button></div></div>}
+    {passed&&activeExercise&&<div className="v5-victory-overlay" role="dialog" aria-modal="true" aria-label="Reto superado"><div className="v5-victory"><span className="v5-victory-star">★</span><span className="v5-chip">MISIÓN SUPERADA</span><h2>¡Lo conseguiste!</h2><p>Tu algoritmo pasó {activeExercise.tests.length} {activeExercise.tests.length===1?'prueba':'pruebas'} automáticamente. {activeExercise.id.startsWith('bank-')?'Este reto cuenta para tu progreso en el laboratorio.':'Has desbloqueado tu siguiente lección.'}</p><div className="v5-victory-stars">★ ★ ★</div><button className="v5-cta v5-full" onClick={()=>{setPassed(false);nextLessonFromExercise();}}>{activeExercise.id.startsWith('bank-')?'Explorar otro reto →':lessons.findIndex(item=>item.id===activeExercise.lessonId)<lessons.length-1?'Ir a la siguiente clase →':'Volver a mis clases →'}</button><button className="v5-link-btn" onClick={()=>{setPassed(false);reset();}}>Practicar otra vez</button></div></div>}
     <div role="status" aria-live="polite" className="v5-sr-status">{status}</div>
   </div>;
 }

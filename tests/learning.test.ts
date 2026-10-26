@@ -44,7 +44,7 @@ describe('Guided classroom curriculum', () => {
     const func=exercise.project.functions.main;
     const grade=gradeExercise(exercise,func,inputs=>runToCompletion(func,inputs));
     expect(grade.passed).toBe(false);
-    expect(grade.feedback.some(text=>text.includes('Declare'))).toBe(true);
+    expect(grade.feedback.some(text=>text.includes('Declarar edad como Integer'))).toBe(true);
   });
   it('inserts new shapes in a Si branch without converting it into a loop', () => {
     const exercise=exercises.find(e=>e.id==='age')!;

@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { missingFields } from '../domain/blockCompleteness';
 import { FlowNode, PrimitiveType, TYPE_LABELS } from '../domain/models';
 
 const fields: Partial<Record<FlowNode['type'], readonly string[]>> = {
@@ -24,24 +25,36 @@ const fieldTips: Record<string, string> = {
 const examples: Partial<Record<FlowNode['type'], string>> = {
   Declare: 'Crea una o varias cajas del mismo tipo. Ejemplo: Real area, radius.', Assign: 'Ejemplo: total = 3 + 4',
   Input: 'Al ejecutar aparecerá un cuadro para pedir un dato.', Output: 'Ejemplo: Mostrar "Hola, mundo"',
-  If: 'Se bifurca por Sí/No. Nunca repite automáticamente.',
+  If: 'Ejemplo: edad >= 18. Si esa comparación es verdadera sigue por Sí; de lo contrario, por No.',
   While: 'Repite el cuerpo si la condición es verdadera.', Do: 'Repite el cuerpo al menos una vez.',
   For: 'Repite un número de veces usando un contador.', Call: 'Ejecuta una función creada por ti. Configura el nombre y sus argumentos.', Return: 'Devuelve un resultado de la función actual.', Comment: 'Una nota no cambia la ejecución.'
 };
-export function PropertyInspector({ node, onSave, onDelete, onCancel }: { node?: FlowNode; onSave: (node: FlowNode) => void; onDelete: (id: FlowNode['id']) => void; onCancel?: (node: FlowNode) => void }): React.ReactElement {
+export function PropertyInspector({ node, onSave, onDelete, onCancel, requiresReturn = false }: { node?: FlowNode; requiresReturn?: boolean; onSave: (node: FlowNode) => void; onDelete: (id: FlowNode['id']) => void; onCancel?: (node: FlowNode) => void }): React.ReactElement {
   const [draft, setDraft] = useState<FlowNode | undefined>(node);
   const [dirty, setDirty] = useState(false);
+  const [attempted, setAttempted] = useState(false);
+  const [showExamples, setShowExamples] = useState(false);
+  const formRef = useRef<HTMLFormElement>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
-  const cancel = () => { if (dirty && node) onCancel?.(node); setDraft(node); setDirty(false); setConfirmDelete(false); };
-  useEffect(() => { setDraft(node); setDirty(false); setConfirmDelete(false); }, [node]);
+  const cancel = () => { if (dirty && node) onCancel?.(node); setDraft(node); setDirty(false); setConfirmDelete(false); setAttempted(false); };
+  useEffect(() => { setDraft(node); setDirty(false); setConfirmDelete(false); setAttempted(false); setShowExamples(false); }, [node]);
   if (!draft) return <section className="panel inspector"><div className="panel-title"><h2>Propiedades</h2></div><p className="empty">Toca un bloque del diagrama para editarlo. Si no tienes ninguno seleccionado, empieza por «Inicio».</p></section>;
   const names = fields[draft.type] ?? [];
+  const missing = draft.type === 'Return' && requiresReturn && !draft.expression?.trim()
+    ? [{ key: 'expression', label: 'valor que debe devolver la función' }] : missingFields(draft);
+  const requiredKeys = new Set(missing.map(field => field.key));
+  const hasMissing = missing.length > 0;
   const update = (key: string, value: unknown) => { setDraft({ ...draft, [key]: value } as FlowNode); setDirty(true); };
   return <section className="panel inspector">
-    <div className="panel-title"><h2>{TYPE_LABELS[draft.type]}</h2><span className="inspector-kind">{dirty ? '● Cambios pendientes' : '✓ Sin cambios'}</span></div>
-    {examples[draft.type] && <p className="property-example">ⓘ {examples[draft.type]}</p>}
+    <div className="panel-title"><h2>{TYPE_LABELS[draft.type]}</h2><span className="inspector-kind">{hasMissing ? '◉ Falta completar' : dirty ? '● Cambios pendientes' : '✓ Configurado'}</span></div>
+    <p className="v142-editor-guidance">{hasMissing ? `Completa ${missing.map(field => field.label).join(' y ')} con tus propios valores.` : 'Puedes revisar o modificar este bloque cuando quieras.'}</p>
+    {examples[draft.type] && <div className="v142-example-toggle"><button type="button" onClick={() => setShowExamples(v => !v)} aria-expanded={showExamples}>{showExamples ? 'Ocultar ejemplo' : '¿Cómo se usa? Ver un ejemplo'} <span aria-hidden="true">{showExamples ? '−' : '+'}</span></button>{showExamples && <p className="property-example">ⓘ {examples[draft.type]}</p>}</div>}
     {names.length === 0 && <p className="empty">Este bloque no necesita configuración. Se crea automáticamente con el diagrama.</p>}
-    <form className="inspector-form" onSubmit={event => { event.preventDefault(); onSave(draft); setDirty(false); }}>
+    <form ref={formRef} className="inspector-form" onSubmit={event => {
+      event.preventDefault(); setAttempted(true);
+      if (hasMissing) { window.requestAnimationFrame(() => formRef.current?.querySelector<HTMLInputElement>('[aria-invalid="true"]')?.focus()); return; }
+      onSave(draft); setDirty(false);
+    }}>
       <div className="form-fields">{names.map(key => {
         const value = (draft as unknown as Record<string, unknown>)[key];
         if (key === 'dataType') return <label key={key}>Tipo de dato<select value={String(value ?? 'Integer')} onChange={e => update(key, e.target.value as PrimitiveType)}>{['Integer', 'Real', 'String', 'Boolean'].map(t => <option key={t}>{t}</option>)}</select><small>Integer: entero · Real: decimal · String: texto · Boolean: Sí/No</small></label>;
@@ -49,12 +62,22 @@ export function PropertyInspector({ node, onSave, onDelete, onCancel }: { node?:
         if (key === 'newLine') return <label key={key} className="check-row"><input type="checkbox" checked={Boolean(value)} onChange={e => update(key, e.target.checked)} /> Añadir nueva línea al final</label>;
         if (key === 'arraySize') return <div key={key} className="v10-array-settings"><label className="check-row"><input type="checkbox" checked={!!value} onChange={e=>update('arraySize',e.target.checked?'5':undefined)}/> ¿Es un arreglo de varios valores?</label>{value?<label>Tamaño del arreglo<input inputMode="numeric" value={String(value)} onChange={e=>update('arraySize',e.target.value||undefined)} /><small>Ejemplo: 5 crea casillas datos[0] a datos[4].</small></label>:<small>Variable normal: guarda un único valor, por ejemplo edad = 18. No necesita tamaño.</small>}</div>;
         if (key === 'args') return <label key={key}>Argumentos separados por coma<input value={Array.isArray(value) ? value.join(', ') : ''} onChange={e => update(key, e.target.value.split(',').map(x => x.trim()).filter(Boolean))} /></label>;
-        return <label key={key}>{labels[key] ?? key}<input value={String(value ?? '')} placeholder={fieldTips[key] ?? ''} onChange={e => update(key, e.target.value || (key === 'arraySize' ? undefined : ''))} />{fieldTips[key] && <small>{fieldTips[key]}</small>}</label>;
+        return <label key={key}>{labels[key] ?? key}{requiredKeys.has(key) && <span className="v142-required">Necesario</span>}<input
+          value={String(value ?? '')}
+          aria-invalid={attempted && requiredKeys.has(key)}
+          aria-required={key !== 'arraySize'}
+          placeholder={fieldTips[key] ?? 'Escribe aquí'}
+          autoComplete="off"
+          onChange={e => update(key, e.target.value || (key === 'arraySize' ? undefined : ''))} />
+          {fieldTips[key] && <small>{fieldTips[key]}</small>}
+          {attempted && requiredKeys.has(key) && <strong className="v142-field-error">Escribe {labels[key]?.toLowerCase() ?? 'este dato'} para continuar.</strong>}
+        </label>;
       })}</div>
       {names.length > 0 && <div className="v6-form-actions">
-        <button type="submit" className="v6-apply" disabled={!dirty}>✓ Aplicar cambios</button>
+        {attempted && hasMissing && <p className="v142-form-error" role="alert">Este bloque aún no está listo. Rellena los campos señalados; el ejemplo es solo una guía, no una respuesta.</p>}
+        <button type="submit" className="v6-apply" disabled={!dirty && !hasMissing}>✓ Guardar bloque</button>
         <button type="button" className="v6-cancel" onClick={cancel} disabled={!dirty}>Cancelar edición</button>
-        <small>{dirty?'Puedes descartar los cambios sin modificar el diagrama.':'Todo guardado. Modifica un campo para activar los botones.'}</small>
+        <small>{hasMissing?'Los campos están vacíos a propósito: la respuesta la escribes tú.':dirty?'Guarda cuando termines o cancela para deshacer los cambios.':'Bloque configurado correctamente.'}</small>
       </div>}
       {draft.type !== 'Start' && draft.type !== 'End' && <div className="v6-danger-zone">
         {!confirmDelete ? <button type="button" className="v6-delete-trigger" onClick={() => setConfirmDelete(true)}>Eliminar este bloque…</button> :

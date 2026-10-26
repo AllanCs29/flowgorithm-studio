@@ -1,90 +1,93 @@
-# Versión actual: v12.2 · Explicaciones y pruebas corregidas
+# Flowgorithm Studio
 
-Lee primero [README-V12-2.md](README-V12-2.md) para instalar y verificar la versión más reciente en Mac y teléfono. La guía [v12.1](README-V12-1.md) sigue disponible como historial.
+**Academia visual para aprender lógica de programación desde cero**, mediante diagramas de flujo, lecciones interactivas y un editor en español. Disponible en Mac, PC y como aplicación web instalable (PWA) para iPhone.
 
-**Empieza por [README-V12.md](README-V12.md)**. Los diagramas del aula y editor ahora emplean símbolos, figuras y operadores de Flowgorithm original; las primeras clases incluyen explicaciones previas de cero y un laboratorio de área del círculo con radio interactivo. Para ejecutar en **Mac y teléfono** utiliza `npm run dev:lan`.
+**Versión de esta entrega:** **1.4.7 · Corrección de compilación TypeScript para las pruebas móviles; mantiene las mejoras UX de v14.6**.
 
-> Los documentos de versiones anteriores se conservan como historial de desarrollo.
+[**Abrir la aplicación publicada**](https://allancs29.github.io/flowgorithm-studio/) · [Informe de auditoría](docs/AUDITORIA-v14.4.md) · [Guía para probarla en iPhone](docs/PRUEBAS-UX-MOVIL.md) · [Compatibilidad](docs/COMPATIBILITY.md)
 
----
+> Proyecto educativo independiente, inspirado en los diagramas de Flowgorithm. **No es Flowgorithm oficial ni promete compatibilidad completa con todos los archivos `.fprg`.**
 
-# Historial: v7 — Simulación visual
+## Qué incluye
 
-Lee **[README-V7.md](README-V7.md)** para instalar y utilizar la nueva ejecución animada, memoria visual y predicciones.
+| Área | Contenido |
+| --- | --- |
+| Curso | **16 clases**, distribuidas en **11 niveles**: bloques, variables, Entrada/Salida, decisiones, ciclos, acumuladores, funciones y retos integradores |
+| Biblioteca | **100 ejercicios** en 11 mundos: **94 programáticos** y **6 de interacción con el editor** |
+| Evaluación | **224 casos de prueba** configurados para las 94 prácticas programáticas; donde procede también se comprueba la estructura del algoritmo |
+| Editor | Declarar, Asignar, Entrada, Salida, Si, Mientras, Hacer mientras, Para, funciones y otros bloques |
+| Simulación | Ejecución paso a paso, inspección de variables, seguimiento visual de decisiones y resultado |
+| Código | Generadores de Python, JavaScript, C, C++ y Java, **con limitaciones explícitas** |
+| Trabajo sin señal | PWA instalable desde HTTPS, precaché del programa y progreso local por navegador/dispositivo |
 
----
+Los **224 casos** son datos sintéticos de prueba definidos en el repositorio; **no son estadísticas de estudiantes reales ni validan por sí solos la usabilidad con principiantes**. Consulta el [informe de auditoría](docs/AUDITORIA-v14.4.md) para interpretar la cobertura.
 
-**Historial: v6 completa (100/100 retos practicables).** Empieza por [README-V6-COMPLETA.md](README-V6-COMPLETA.md). Este documento contiene notas históricas de las versiones anteriores.
+## Para empezar a aprender
 
----
+1. Entra a la aplicación y elige **Empezar mi primera clase**.
+2. **Lee la meta del ejercicio** antes de tocar el diagrama. En iPhone se presenta compacta encima del diagrama; tócala para expandirla y consultar «Qué revisaré» o la ayuda.
+3. En el editor, toca una pieza para editarla o mantén pulsado sobre ella para moverla. **Los datos que debes aprender a escribir aparecen vacíos** cuando insertas bloques nuevos.
+4. **Intenta resolverlo a tu manera**. En móvil, no se señala automáticamente el bloque correcto: «¿Necesitas ayuda?» abre los pasos y permite activar el resaltado opcional.
+5. Ejecuta el diagrama y usa **Comprobar mi reto**. Si no pasa, consulta la explicación y la pista y vuelve a intentarlo.
+6. Puedes **repasar clases anteriores** sin borrar tu progreso.
 
-**Versión v6:** Comienza por [README-V6.md](README-V6.md). Incluye 100 desafíos catalogados, de los cuales 70 son practicables y 30 están en preparación.
+**Sintaxis importante de Flowgorithm:** en Asignar, `total = 7 + 8` guarda un resultado; en Si, `=` compara. Para unir textos se usa `&` (`"Hola " & nombre`); para sumar números, `+`. [Referencia oficial sobre operadores](https://flowgorithm.org/documentation/operators.html).
 
----
+## Ejecutar desde la Terminal de Mac
 
-# Flowgorithm Studio v5 — Aula para aprender lógica
-
-**Nueva experiencia móvil y de escritorio:** abre directamente la pantalla de lecciones. [Lee la guía de v5](README-V5.md).
-
-**Rediseño UX/UI v4:** consulta [README-V4.md](README-V4.md) para los tres modos, nuevas pestañas, desplazamiento de paneles y checklist de pruebas manuales.
-
-# Flowgorithm Studio — editor estructural y aula guiada
-
-Editor web experimental de diagramas de flujo con estructura determinista al estilo Flowgorithm. Incluye el dominio tipado, edición estructural validada, layout separado del AST, intérprete paso a paso, generadores separados y una ruta de aprendizaje en español.
-
-> **Continuidad:** este paquete se reconstruyó a partir de las especificaciones y fragmentos del trabajo previo recuperables en la conversación. No es una copia byte a byte del repositorio original ni una afirmación de paridad 1:1 con Flowgorithm.
-
-## Inicio rápido
-
-Requisitos: Node.js 20+ y npm.
-
-```bash
-npm install
-npm run dev
-```
-
-Abre la URL que muestre Vite, normalmente `http://localhost:5173`.
-
-## Aprender dentro de la aplicación
-
-Pulsa **Aprender** en la barra superior. Hay tres secciones:
-
-- **Empezar:** tutoriales guiados sobre el flujo, variables, entrada/salida, decisiones y ciclos.
-- **Qué hace cada bloque:** referencia con propósito, ejemplo y consejo para cada bloque de la paleta.
-- **Ejercicios por nivel:** seis retos iniciales con pistas y casos de prueba. Abre un reto, modifica el diagrama y pulsa **Comprobar reto**. El progreso se guarda localmente en el navegador cuando el almacenamiento está disponible.
-
-## Ejecutar y depurar
-
-- **Paso a paso** ejecuta un solo bloque y resalta el siguiente bloque que se va a ejecutar.
-- **Ejecutar** avanza hasta terminar, llegar a una entrada o alcanzar el límite de seguridad.
-- Cuando un bloque Entrada pide un valor, la ejecución queda en espera. Una entrada inválida muestra el error y permite corregirla sin reiniciar.
-- **Reset ejecución** reinicia variables, salida y contador. Si editas el diagrama, la ejecución se reinicia automáticamente para no conservar un puntero a un bloque antiguo.
-- La consola muestra la salida; el panel Variables muestra el estado después de cada paso.
-
-## Verificación
+Requisitos: Node.js **22** recomendado y npm. Desde la carpeta del proyecto:
 
 ```bash
-npm run lint
-npm test
-npm run build
-# todo junto
+npm install --include=dev
 npm run verify
+npm run dev:lan
 ```
 
-Los tests cubren dominio, parser, layout, generadores, compatibilidad `.fprg` y ejecución paso a paso. Para esta revisión también se ejecutaron comprobaciones aisladas del intérprete y de los resultados esperados de los seis retos. La instalación npm completa no pudo ejecutarse en el entorno de revisión porque `registry.npmjs.org` no resolvió DNS; por ello `npm test`, `npm run build` y `npm run lint` deben correrse en tu Mac después de instalar dependencias.
+Abre `http://localhost:5173` en Mac. En el iPhone conectado al mismo Wi-Fi, abre la URL **Network** que imprime Vite. **La dirección local HTTP sirve para desarrollar y revisar la interfaz; no instala offline en iPhone**.
 
-## Alcance y límites actuales
+Comandos adicionales:
 
-- Bloques: Start, End, Declare, Assign, Input, Output, If, While, Do, For, Call, Return y Comment.
-- Generadores separados para Python, JavaScript, C, C++ y Java.
-- Parser de expresiones Pratt sin `eval`, con operadores aritméticos, comparación y lógica básica.
-- Importación/exportación `.fprg` para un subconjunto documentado.
-- Las llamadas a funciones (`Call`), ejecución real de subfunciones, indexación de arreglos (`a[i]`), gráficos/turtle, semánticas específicas de conversión y paridad completa del formato `.fprg` están pendientes. El intérprete ahora informa explícitamente cuando una operación de arreglos o llamadas excede el subconjunto admitido; no inventa su resultado.
+| Comando | Para qué sirve |
+| --- | --- |
+| `npm run dev` | Servidor de desarrollo local |
+| `npm run dev:lan` | Acceso de otros dispositivos en la misma red |
+| `npm run verify` | Revisión de estructura móvil, ESLint, Vitest y compilación |
+| `npm test` | Pruebas automáticas |
+| `npm run build` | Compilación de producción en `dist/` con paquete offline |
+| `npm run preview` | Revisar la compilación local |
 
-Consulta `ARCHITECTURE.md`, `docs/COMPATIBILITY.md` y `docs/PROJECT_STATUS.md` para más detalles.
+**Dependencias:** esta entrega no incluye `node_modules` ni `package-lock.json`. La instalación en CI utiliza versiones exactas del `package.json`, pero hace falta generar, comprobar y subir un lockfile para máxima reproducibilidad. No uses `npm audit fix --force` sin revisar los cambios.
 
-## Novedades v10
+## Publicar en GitHub Pages
 
-Consulta [README-V10.md](./README-V10.md). Incluye las mejoras planificadas para v8, v9 y v10 con límites explícitos: 24 microretos táctiles, progreso local por estudiante, proyectos, equivalencias didácticas al código y modo offline mediante HTTPS/localhost.
+El archivo [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) **verifica las pruebas, compila y publica** el proyecto en cada cambio subido a `main`. Si `npm run verify` falla, se interrumpe el despliegue.
 
-Inicia Mac y teléfono con `npm run dev:lan` y abre la dirección **Network** desde el teléfono.
+1. En GitHub Desktop, abre este repositorio y guarda tus cambios con **Commit to main**.
+2. Haz **Push origin**.
+3. En GitHub, abre **Actions → Publicar Flowgorithm Studio** y confirma que la ejecución quede verde.
+4. Entra a [la aplicación publicada](https://allancs29.github.io/flowgorithm-studio/).
+
+El workflow configura `BASE_PATH=/flowgorithm-studio/` para que Vite cargue correctamente las rutas. **No publiques el `index.html` original directamente**: React debe compilarse a la carpeta `dist`.
+
+## Instalarla en el iPhone y estudiar offline
+
+Abre el enlace HTTPS en **Safari normal**, espera a que indique *Listo para estudiar sin internet*, pulsa **Compartir → Agregar a pantalla de inicio** y ábrela una vez desde el ícono con conexión. Después prueba el modo Avión. El almacenamiento de iOS puede ser eliminado por el sistema en determinadas circunstancias; guarda respaldos periódicos.
+
+**No hay inicio de sesión ni sincronización Firebase en esta versión.** El progreso se conserva **localmente en cada dispositivo**. La app no incorpora análisis de uso de estudiantes en un servidor. Instalarla en la pantalla de inicio no la convierte en una aplicación nativa distribuida por App Store.
+
+## Auditoría, UX y documentación
+
+- [Auditoría v14.4 y datos de prueba](docs/AUDITORIA-v14.4.md)
+- [Guía de pruebas de usabilidad en iPhone](docs/PRUEBAS-UX-MOVIL.md)
+- [Criterios didácticos y lenguaje](docs/GUIA-DIDACTICA.md)
+- [Compatibilidad con Flowgorithm original](docs/COMPATIBILITY.md)
+- [Arquitectura](ARCHITECTURE.md)
+- [Historial de versiones](CHANGELOG.md)
+
+Los `README-V*.md` existentes se conservan **solo como registro histórico** y pueden describir funcionalidades anteriores. Este README es la referencia vigente.
+
+## Límites y contribuciones
+
+No todos los operadores, archivos, arreglos, funciones intrínsecas y conversiones están implementados igual que en Flowgorithm original. La generación de C puede rechazar algunas concatenaciones de cadenas con un mensaje explícito para evitar generar código incorrecto. No existe todavía una prueba instrumental completa de accesibilidad ni un estudio de usabilidad con muestra representativa.
+
+Si encuentras un fallo, abre un **Issue** con la clase/reto, los pasos para reproducirlo, lo esperado, lo ocurrido y el dispositivo. **No compartas contraseñas, claves ni archivos con datos privados.** No se ha elegido una licencia de reutilización para este repositorio; consulta a la persona propietaria antes de redistribuir o reutilizar el código.

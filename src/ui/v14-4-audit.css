@@ -1,0 +1,6 @@
+/* v14.4: aprendizaje con ejemplo opcional, no una respuesta impuesta. */
+.v144-optional-solution{margin:12px 0;padding:4px 12px 10px;background:#f7f8ff;border:1px solid #dbe1f6;border-radius:12px}
+.v144-optional-solution summary{cursor:pointer;display:list-item;min-height:44px;padding:11px 0;font-weight:700;color:#494ab8}
+.v144-optional-solution summary:focus-visible{outline:3px solid #797be5;outline-offset:2px;border-radius:6px}
+.v144-optional-solution p{margin:4px 0 8px;overflow-wrap:anywhere;line-height:1.55}
+.v144-optional-solution small{display:block;color:#647188}

@@ -1,0 +1,87 @@
+/* V14.2 · Auditoría UX móvil: claridad, legibilidad, accesibilidad táctil.
+   Todas las reglas están acotadas a <=760px; escritorio conserva su diseño. */
+.v142-mobile-tip,.v142-inline-alert,.v142-palette-mobile{display:none}
+.v142-editor-guidance{font-size:13px;line-height:1.6;margin:8px 0 14px;color:#475879}
+.v142-example-toggle{margin:8px 0 15px}
+.v142-example-toggle>button{display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%;background:#f4f6ff!important;border:1px solid #dce1fc!important;color:#4b55bd!important;padding:11px 13px!important;border-radius:11px!important;font-size:12px;font-weight:800;text-align:left}
+.v142-example-toggle .property-example{margin-top:8px}
+.v142-required{font-size:10px;font-weight:750;color:#6756c7;margin-left:6px}
+.v142-field-error{font-size:11px;color:#a74450;line-height:1.4}
+.v142-form-error{padding:11px 12px;margin:0 0 10px;border:1px solid #f1bfc4;border-radius:10px;background:#fff2f3;color:#9e3348;font-size:12px;line-height:1.5}
+.v5-properties-content input[aria-invalid="true"]{border-color:#d55668!important;background:#fffafb!important;box-shadow:0 0 0 2px #ec92a125}
+.node-shape.v142-incomplete{stroke:#da9950;stroke-dasharray:8 5;stroke-width:2.5}
+.node-label.v142-placeholder-label{font-style:italic;fill:#98653e;font-weight:600}
+.v142-place-copy{display:grid;gap:4px;text-align:left}
+.v142-place-copy small{font-size:11px;font-weight:500;color:#697aa4;line-height:1.4}
+@media (max-width:760px){
+  .v5-editor-top{box-sizing:border-box;flex:none;min-height:54px;height:54px;gap:7px}
+  .v5-header-actions{gap:3px}
+  .v5-header-actions .v142-header-advanced,.v5-header-actions .v142-header-help{display:none!important}
+  .v5-header-actions .v142-header-menu{min-width:44px!important;min-height:44px!important;font-size:18px!important}
+  .v5-editor-brand strong{max-width:min(60vw,260px);font-size:14px;line-height:1.15}
+  .v5-editor-brand small{font-size:9px;letter-spacing:.09em}
+  .v5-editor-toolbar{padding:7px 12px 6px;min-height:55px;gap:9px}
+  .v5-editor-toolbar-heading{min-width:0;gap:3px}
+  .v5-editor-toolbar-heading strong{font-size:14px;line-height:1.25}
+  .v5-zoom-controls{gap:2px}
+  .v5-zoom-controls button{width:42px;min-height:44px;min-width:42px;border-radius:12px!important}
+  .v5-zoom-controls span{font-size:11px;min-width:36px}
+  .v5-mobile-coach{gap:8px;min-height:0;padding:10px 13px}
+  .v5-mobile-coach strong{font-size:13px;line-height:1.35;font-weight:750}
+  .v5-mobile-coach button{min-height:44px;font-size:11px;padding:8px 10px!important}
+  .v142-mobile-tip{display:flex;align-items:center;gap:8px;background:#f8f9ff;color:#4e6085;border-bottom:1px solid #e2e7f6;padding:7px 12px;font-size:12px;line-height:1.35;min-height:31px;flex:none}
+  .v142-tip-dot{color:#6268e2;font-size:14px;line-height:1}
+  .v142-inline-alert{display:flex;align-items:center;justify-content:space-between;gap:9px;text-align:left;padding:9px 12px!important;font-size:11px;line-height:1.4;border:1px solid #f3c0ac!important;background:#fff4ed!important;color:#894e29!important;flex:none;border-radius:0!important}
+  .v142-inline-alert strong{flex-shrink:0;white-space:nowrap}
+  /* No flotadores sobre la parte importante del diagrama. */
+  .v5-canvas-help{display:none!important}
+  .v5-canvas-wrap,.v5-canvas-wrap>.canvas-viewport{min-height:0!important;flex:1;overscroll-behavior:contain}
+  .v5-canvas-wrap>.canvas-viewport{touch-action:pan-x pan-y}
+  .flow-canvas [data-flow-node]{touch-action:pan-x pan-y;cursor:pointer}
+  .flow-canvas .node-shape{stroke-width:2}
+  .flow-canvas .node-shape.selected{stroke-width:3.5}
+  .v5-dock{grid-template-columns:repeat(4,minmax(0,1fr));min-height:calc(70px + env(safe-area-inset-bottom));height:auto;gap:6px;padding:7px 9px calc(7px + env(safe-area-inset-bottom))}
+  .v5-dock button{min-height:52px!important;gap:4px;border-radius:13px!important}
+  .v5-dock button small{font-size:11px;line-height:15px;letter-spacing:0}
+  .v5-dock button>span{font-size:22px;line-height:23px}
+  .v7-simulator.expanded{bottom:calc(70px + env(safe-area-inset-bottom));max-height:75dvh}
+  /* Los formularios deben ser accesibles con el teclado del iPhone. */
+  .v5-editor-sheet{height:min(83dvh,780px);max-height:83dvh;display:flex;flex-direction:column;padding-bottom:0}
+  .v5-editor-sheet>header{min-height:55px;flex:none}
+  .v5-editor-sheet>header button{min-width:44px!important;min-height:44px!important}
+  .v5-sheet-scroll{min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding-bottom:calc(20px + env(safe-area-inset-bottom))}
+  .v5-properties-content{padding:15px 16px 20px}
+  .v5-properties-content .form-fields{display:grid;gap:12px}
+  .v5-properties-content .form-fields label{display:block;font-size:13px!important;line-height:1.5}
+  .v5-properties-content .form-fields label small{display:block;line-height:1.5;font-size:11px!important;margin-top:5px}
+  .v5-properties-content .form-fields input:not([type="checkbox"]),.v5-properties-content .form-fields select{display:block;width:100%;max-width:100%;box-sizing:border-box;font-size:16px!important;min-height:48px!important;padding:11px 12px!important;margin-top:7px;border-radius:10px!important}
+  .v5-properties-content .inspector-form .v6-form-actions{position:sticky;bottom:0;z-index:2;background:#fff;border-top:1px solid #e5e9f7;margin-top:14px;padding:13px 0 calc(10px + env(safe-area-inset-bottom));box-shadow:0 -9px 16px #fffdfc}
+  .v5-properties-content .inspector-form .v6-form-actions button{min-height:46px!important;font-size:13px!important}
+  .v142-palette-desktop{display:none}
+  .v142-palette-mobile{display:inline}
+  .v5-sheet-scroll .modern-block-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .v5-sheet-scroll .block-choice{min-height:80px;border-radius:12px}
+  .v5-sheet-scroll .block-pick{min-height:76px;align-items:center;padding:10px 7px!important;gap:6px}
+  .v5-sheet-scroll .block-text strong{font-size:13px!important}
+  .v5-sheet-scroll .block-text small{font-size:11px!important;line-height:1.35}
+  .v5-sheet-scroll .block-info{min-width:34px;min-height:44px}
+  .v5-place-options button{min-height:64px!important}
+  .v5-input-form input{font-size:16px!important}
+  .v5-editor button:focus-visible,.v5-editor input:focus-visible,.v5-editor select:focus-visible{outline:3px solid #756ee5;outline-offset:2px}
+}
+@media(max-width:380px){
+  .v5-editor-brand strong{max-width:46vw}
+  .v5-zoom-controls span{display:none}
+  .v5-zoom-controls button{min-width:43px}
+  .v5-mobile-coach button{padding:7px!important}
+  .v5-dock{gap:3px;padding-inline:5px}
+  .v5-dock button small{font-size:10px}
+}
+@media(max-width:760px) and (max-height:660px){
+  .v5-editor-toolbar{min-height:44px;padding-block:4px}
+  .v142-mobile-tip{padding-block:4px;font-size:11px}
+  .v5-dock{min-height:calc(63px + env(safe-area-inset-bottom))}
+  .v5-dock button{min-height:47px!important}
+  .v7-simulator.expanded{bottom:calc(63px + env(safe-area-inset-bottom))}
+}
+@media(prefers-reduced-motion:reduce){.v5-editor-sheet{animation:none!important}}

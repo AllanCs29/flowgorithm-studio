@@ -42,16 +42,16 @@ export function createDefaultNode(type: FlowNode['type'], id: NodeId = makeId())
   switch (type) {
     case 'Start': return { id, type };
     case 'End': return { id, type };
-    case 'Declare': return { id, type, name: 'variable', dataType: 'Integer' };
-    case 'Assign': return { id, type, target: 'variable', expression: '0' };
-    case 'Input': return { id, type, target: 'variable' };
-    case 'Output': return { id, type, expression: '"Hola mundo"', newLine: true };
-    case 'If': return { id, type, condition: 'true' };
-    case 'While': return { id, type, condition: 'false' };
-    case 'Do': return { id, type, condition: 'false' };
-    case 'For': return { id, type, variable: 'i', start: '0', end: '10', step: '1', direction: 'Inc' };
-    case 'Call': return { id, type, functionName: 'MiFuncion', args: [] };
+    case 'Declare': return { id, type, name: '', dataType: 'Integer' };
+    case 'Assign': return { id, type, target: '', expression: '' };
+    case 'Input': return { id, type, target: '' };
+    case 'Output': return { id, type, expression: '', newLine: true };
+    case 'If': return { id, type, condition: '' };
+    case 'While': return { id, type, condition: '' };
+    case 'Do': return { id, type, condition: '' };
+    case 'For': return { id, type, variable: '', start: '', end: '', step: '', direction: 'Inc' };
+    case 'Call': return { id, type, functionName: '', args: [] };
     case 'Return': return { id, type };
-    case 'Comment': return { id, type, text: 'Comentario' };
+    case 'Comment': return { id, type, text: '' };
   }
 }

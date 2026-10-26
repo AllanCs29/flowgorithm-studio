@@ -27,6 +27,10 @@ export interface Exercise {
   readonly requiredTypes: readonly FlowNode['type'][];
   readonly project: FlowProject;
   readonly interaction?: InteractionKind;
+  /** Qué revisa la evaluación, explicado al estudiante. */
+  readonly criteria?: readonly string[];
+  /** Variables que deben leerse desde Salida; evita aprobar imprimiendo un resultado fijo. */
+  readonly outputReads?: readonly string[];
 }
 
 const step = (title: string, body: string, action: string): LessonStep => ({ title, body, action });
@@ -143,8 +147,8 @@ function challenge(id:string,lessonId:string,level:number,title:string,skill:str
 export const exercises: readonly Exercise[] = [
  challenge('first-run','flow',1,'Mi primera ejecución','Inicio → Fin','Ejecuta y modifica el mensaje inicial para que aparezca exactamente Listo.', 'Selecciona Salida, cambia Expresión por "Listo" y aplica.', ['Haz clic en Salida.','En «Editar» introduce "Listo".','Pulsa «Aplicar cambios» y luego «Ejecutar».','Pulsa «Comprobar mi reto» para validar tu resultado.'],[T([],'Listo\n')],['Output'],{start:S('out'),out:O('out','"Cambia este texto"','end'),end:E}),
  challenge('hello-world','output',1,'Hola, mundo','Salida','Configura el bloque Salida para imprimir Hola, mundo.', 'El texto debe ir entre comillas dobles.', ['Selecciona Salida.','Pon "Hola, mundo" en Expresión.','Aplica cambios y comprueba.'],[T([],'Hola, mundo\n')],['Output'],{start:S('out'),out:O('out','"Tu saludo"','end'),end:E}),
- challenge('variable','declare',2,'Mi primera variable','Declarar','Agrega un bloque Declarar llamado edad de tipo Integer antes de Salida; el programa debe mostrar 0.', 'Selecciona Inicio, abre «Piezas», elige Declarar y colócalo después de Inicio.', ['Selecciona Inicio.','Pulsa Declarar.','Insértalo después de Inicio y configura edad / Integer.','Muestra edad y comprueba.'],[T([],'0\n')],['Declare','Output'],{start:S('out'),out:O('out','edad','end'),end:E}),
- challenge('sum','assign',2,'Suma 7 + 8','Asignar','Repara la operación total para imprimir 15.', 'Cambia la expresión de Asignar total por 7 + 8.', ['Selecciona Asignar total.','Cambia Expresión por 7 + 8.','Aplica y comprueba.'],[T([],'15\n')],['Declare','Assign','Output'],{start:S('d'),d:D('d','total','Integer','a'),a:A('a','total','0','out'),out:O('out','total','end'),end:E}),
+ challenge('variable','declare',2,'Mi primera variable','Declarar','Crea la variable edad de tipo Integer y usa Salida para mostrar lo que guarda. No hay un número obligatorio: importa que Salida lea edad.', 'Selecciona Inicio, abre «Piezas», elige Declarar y colócalo antes de Salida. En Salida escribe edad sin comillas.', ['Selecciona Inicio.','Añade Declarar antes de Salida.','Pon Nombre: edad y Tipo: Integer. Guarda el bloque.','Revisa que Salida diga edad (sin comillas), ejecuta y comprueba.'],[T([],'')],['Declare','Output'],{start:S('out'),out:O('out','edad','end'),end:E}),
+ challenge('sum','assign',2,'Suma 7 + 8','Asignar','Consigue que tu algoritmo calcule 7 + 8, guarde el resultado en total y lo muestre con Salida. No basta con imprimir un número fijo.', 'Cambia la expresión de Asignar total por 7 + 8.', ['Selecciona Asignar total.','Cambia Expresión por 7 + 8.','Aplica y comprueba.'],[T([],'15\n')],['Declare','Assign','Output'],{start:S('d'),d:D('d','total','Integer','a'),a:A('a','total','0','out'),out:O('out','total','end'),end:E}),
  challenge('greeting','input',3,'Saludo interactivo','Entrada','Con cualquier nombre introducido, muestra Hola, NOMBRE (con coma y espacio).', 'Usa "Hola, " & nombre.', ['Revisa Declarar nombre / String.','Ejecuta y escribe Ada.','Cambia la expresión de Salida.','Comprueba varios nombres.'],[T(['Ada'],'Hola, Ada\n'),T(['Luz'],'Hola, Luz\n')],['Input','Output'],{start:S('d'),d:D('d','nombre','String','i'),i:I('i','nombre','out'),out:O('out','"Hola " & nombre','end'),end:E}),
  challenge('age','if',4,'Mayor de edad','Si / Sino','Añade un bloque Salida a cada rama del Si: Mayor si edad >= 18; Menor en caso contrario.', 'Elige Si y usa insertar En rama Sí / En rama No con el bloque Salida.', ['Selecciona el bloque Si.','Abre «Piezas», elige Salida y colócala en «Rama Sí» y configura "Mayor".','Selecciona de nuevo Si, agrega Salida en «Rama No» y configura "Menor".','Comprueba 17, 18 y 30.'],[T(['17'],'Menor\n'),T(['18'],'Mayor\n'),T(['30'],'Mayor\n')],['If','Input','Output'],{start:S('d'),d:D('d','edad','Integer','i'),i:I('i','edad','if'),if:{id:n('if'),type:'If',condition:'edad >= 18',next:n('end')},end:E}),
  challenge('even-odd','compare',4,'Par o impar','Condiciones','Corrige la condición y muestra Par para los pares e Impar para los impares.', 'numero % 2 = 0', ['Selecciona Si.','Usa % y = para la condición.','Comprueba con números positivos, negativos y cero.'],[T(['8'],'Par\n'),T(['7'],'Impar\n'),T(['0'],'Par\n'),T(['-3'],'Impar\n')],['If'],{start:S('d'),d:D('d','numero','Integer','i'),i:I('i','numero','if'),if:{id:n('if'),type:'If',condition:'numero > 0',trueNext:n('yes'),falseNext:n('no'),next:n('end')},yes:O('yes','"Par"'),no:O('no','"Impar"'),end:E}),
@@ -171,17 +175,147 @@ export function allowedExercise(exerciseId: string, completed: ReadonlySet<strin
   const index = exercises.findIndex(exercise => exercise.id === exerciseId);
   return index >= 0 && (index === 0 || completed.has(exercises[index - 1].id));
 }
+/** La rúbrica revisa el diagrama, no sólo el número que aparece en pantalla. */
+function readsVariable(expression:string, name:string):boolean {
+  // Nunca contamos texto literal: Output "edad" NO está leyendo la variable edad.
+  const code=expression.replace(/"(?:\\.|[^"\\])*"/g, ' ');
+  return new RegExp(`\\b${name}\\b`, 'i').test(code);
+}
+function appearsBefore(func:import('../domain/models').FlowFunction, first:string, second:string):boolean {
+  let current: string|undefined=func.rootNodeId;
+  const seen=new Set<string>();
+  while(current && !seen.has(current)) {
+    if(current===second)return false;
+    if(current===first)return true;
+    seen.add(current);current=func.nodes[current]?.next;
+  }
+  return false;
+}
+function branchIncludesOutput(func:import('../domain/models').FlowFunction, start:string|undefined, variable?:string, stop?:string):boolean {
+  const pending=start?[start]:[];
+  const visited=new Set<string>();
+  while(pending.length){
+    const id=pending.pop()!;
+    if(id===stop || visited.has(id))continue;
+    visited.add(id);
+    const node=func.nodes[id];
+    if(!node)continue;
+    if(node.type==='Output'&&(!variable||readsVariable(node.expression,variable)))return true;
+    if(node.next)pending.push(node.next);
+    if(node.type==='If'){
+      if(node.trueNext)pending.push(node.trueNext);
+      if(node.falseNext)pending.push(node.falseNext);
+    }
+    if('bodyNext' in node&&node.bodyNext)pending.push(node.bodyNext);
+  }
+  return false;
+}
+export function exerciseCriteria(exercise:Exercise):readonly string[] {
+  if(exercise.id==='variable'||exercise.id==='bank-011')return ['Declarar una variable llamada edad, de tipo Integer.','Colocar Declarar antes de Salida.','Mostrar el contenido de edad (sin comillas), no escribir un número fijo.'];
+  if(exercise.id==='sum')return ['Utilizar Asignar para calcular la suma.','Guardar el cálculo en total y mostrar total desde Salida.'];
+  if(exercise.id==='documentation')return ['Añadir un comentario propio.','Mostrar el mensaje pedido al final.'];
+  if(exercise.id==='age'||exercise.id==='even-odd')return ['Decidir con un bloque Si.','Configurar el camino Sí y el camino No.','Comprobar resultados con varias entradas.'];
+  if(exercise.id==='counter'||exercise.id==='do-once'||exercise.id==='for-count')return ['Usar el ciclo indicado, no escribir todas las respuestas manualmente.','Mostrar el contador mientras cambia.'];
+  if(exercise.id==='accumulate'||exercise.id==='factorial')return ['Usar un ciclo y actualizar el acumulador con cada vuelta.','Mostrar el valor calculado, para varias entradas.'];
+  if(exercise.id==='final-grades')return ['Leer tres notas con Entrada.','Calcular el promedio usando las tres notas.','Decidir con Si y mostrar el resultado que corresponde.'];
+  if(exercise.id.startsWith('function-'))return ['Calcular con los parámetros de la función.','Retornar el resultado y mostrarlo desde Main.','Comprobar distintas entradas.'];
+  return exercise.criteria??['Usar las piezas de la misión.','Comprobar que el programa resuelve los casos indicados.'];
+}
 export function gradeExercise(exercise: Exercise, func: import('../domain/models').FlowFunction, run: (inputs: readonly string[]) => {status: string; outputLog: string[]; error?: string}): { passed: boolean; feedback: readonly string[] } {
   const feedback: string[] = [];
-  const types = new Set(Object.values(func.nodes).map(node => node.type));
-  for (const type of exercise.requiredTypes) if (!types.has(type)) feedback.push(`Falta usar el bloque ${type}.`);
-  for (let index = 0; index < exercise.tests.length; index++) {
-    const test = exercise.tests[index];
-    const result = run(test.inputs);
-    if (result.status !== 'FINISHED' || result.outputLog.join('') !== test.expectedOutput) {
-      const got = result.status === 'ERROR' ? `error: ${result.error}` : result.status === 'WAITING_INPUT' ? 'falta una entrada' : JSON.stringify(result.outputLog.join(''));
-      feedback.push(`Prueba ${index + 1} (${test.inputs.length ? test.inputs.join(', ') : 'sin entrada'}): se esperaba ${JSON.stringify(test.expectedOutput)}, se obtuvo ${got}.`);
+  // Comprobamos lo que realmente puede alcanzarse desde Inicio: una pieza suelta
+  // no demuestra que el alumno haya construido ese flujo.
+  const reachable=new Set<string>(),pending=[func.rootNodeId];
+  while(pending.length){
+    const id=pending.pop()!;
+    if(reachable.has(id))continue;
+    const node=func.nodes[id];
+    if(!node)continue;
+    reachable.add(id);
+    if(node.next)pending.push(node.next);
+    if(node.type==='If'){
+      if(node.trueNext)pending.push(node.trueNext);
+      if(node.falseNext)pending.push(node.falseNext);
+    }
+    if('bodyNext' in node && node.bodyNext)pending.push(node.bodyNext);
+  }
+  const nodes=Object.values(func.nodes).filter(node=>reachable.has(node.id));
+  const types=new Set(nodes.map(node=>node.type));
+  const spanish:Record<string,string>={Declare:'Declarar',Assign:'Asignar',Input:'Entrada',Output:'Salida',If:'Si',While:'Mientras',Do:'Hacer mientras',For:'Para',Comment:'Comentario',Return:'Retornar',Call:'Llamar función'};
+  for(const type of exercise.requiredTypes)if(!types.has(type))feedback.push(`Añade una pieza ${spanish[type]??type} a tu diagrama.`);
+  if(['variable','bank-011','bank-018'].includes(exercise.id)) {
+    const variable=exercise.id==='bank-018'?'valor':'edad';
+    const declarations=nodes.filter(node=>node.type==='Declare' && node.name.split(',').some(name=>name.trim().toLowerCase()===variable) && node.dataType==='Integer');
+    const outputs=nodes.filter(node=>node.type==='Output' && readsVariable(node.expression,variable));
+    if(declarations.length===0)feedback.push(`Falta Declarar ${variable} como Integer. Declarar crea la cajita, no necesitas escribir un número fijo en Salida.`);
+    if(outputs.length===0)feedback.push(`En Salida escribe ${variable} sin comillas, para leer lo que hay dentro de la cajita. Output "${variable}" sólo mostraría esa palabra.`);
+    if(declarations.length>0 && outputs.length>0 && !declarations.some(d=>outputs.some(o=>appearsBefore(func,d.id,o.id))))feedback.push(`Coloca Declarar ${variable} antes de Salida, siguiendo las flechas desde Inicio.`);
+    // No exigimos 0, 7 ni ningún otro resultado: la misión evalúa la declaración y el flujo.
+    if(feedback.length===0) {
+      const result=run([]);
+      if(result.status!=='FINISHED' || result.outputLog.length===0)feedback.push(`Ejecuta el diagrama: debe terminar y mostrar el contenido de ${variable}. Revisa el bloque señalado si aparece un error.`);
+    }
+    return {passed:feedback.length===0,feedback};
+  }
+  for(const variable of exercise.outputReads??[]) {
+    if(!nodes.some(node=>node.type==='Output' && readsVariable(node.expression,variable)))
+      feedback.push(`En Salida debes utilizar la variable ${variable} del algoritmo, en vez de escribir un resultado fijo.`);
+  }
+  if(exercise.id==='greeting') {
+    if(!nodes.some(node=>node.type==='Input'&&node.target.trim()==='nombre'))feedback.push('Pide un nombre con Entrada: la prueba cambiará el dato para comprobar que funciona.');
+    if(!nodes.some(node=>node.type==='Output'&&readsVariable(node.expression,'nombre')))feedback.push('La Salida debe incluir la variable nombre, no un saludo escrito para una sola persona.');
+  }
+  // En los retos con Entrada, la respuesta debe depender de los datos leídos.
+  // Esto impide aprobar mostrando un único número fijo mientras Entrada queda inutilizada.
+  if(exercise.id.startsWith('bank-') && nodes.some(node=>node.type==='Input')){
+    const inputs=nodes.filter((node): node is Extract<FlowNode, {type:'Input'}> => node.type==='Input')
+      .map(node=>node.target.replace(/\[.*$/, '').trim()).filter(Boolean);
+    const usesInput=nodes.some(node=>{
+      if(node.type==='Output'||node.type==='Assign'||node.type==='Return')return inputs.some(name=>readsVariable(node.expression??'',name));
+      if(node.type==='If'||node.type==='While'||node.type==='Do')return inputs.some(name=>readsVariable(node.condition,name));
+      if(node.type==='For')return inputs.some(name=>readsVariable(node.end,name)||readsVariable(node.start,name));
+      if(node.type==='Call')return node.args.some(arg=>inputs.some(name=>readsVariable(arg,name)));
+      return false;
+    });
+    if(!usesInput)feedback.push('Tu algoritmo debe usar los datos de Entrada para calcular o decidir; una respuesta fija no resolverá otros ejemplos.');
+  }
+  if(exercise.id==='sum') {
+    if(!nodes.some(node=>node.type==='Assign' && node.target.trim()==='total' && /[+]/.test(node.expression)))feedback.push('Usa Asignar total con una suma, por ejemplo dos cantidades y el signo +. No basta con escribir el resultado en Salida.');
+    if(!nodes.some(node=>node.type==='Output' && readsVariable(node.expression,'total')))feedback.push('Haz que Salida lea la variable total, sin escribir directamente 15.');
+  }
+  if(exercise.id==='age'||exercise.id==='even-odd') {
+    const ifs=nodes.filter((node): node is Extract<FlowNode, {type:'If'}> => node.type==='If');
+    if(!ifs.some(node=>node.trueNext && node.falseNext && branchIncludesOutput(func,node.trueNext,undefined,node.next) && branchIncludesOutput(func,node.falseNext,undefined,node.next)))feedback.push('El rombo Si necesita una Salida en la rama Sí y otra en la rama No.');
+  }
+  if(['counter','do-once','for-count'].includes(exercise.id)) {
+    const loopType=exercise.id==='counter'?'While':exercise.id==='do-once'?'Do':'For';
+    const loops=nodes.filter(node=>node.type===loopType);
+    if(!loops.some(node=>'bodyNext' in node&&branchIncludesOutput(func,node.bodyNext,'i')))feedback.push('Coloca Salida i dentro del ciclo para mostrar el contador mientras se repite.');
+    if(exercise.id!=='for-count'&&!nodes.some(node=>node.type==='Assign'&&node.target==='i'&&readsVariable(node.expression,'i')))feedback.push('Actualiza el contador i dentro del ciclo para que pueda terminar.');
+  }
+  if(exercise.id==='final-grades') {
+    if(!nodes.some(node=>node.type==='Assign'&&node.target==='promedio'&&['a','b','c'].every(name=>readsVariable(node.expression,name))))feedback.push('Calcula promedio usando las tres notas a, b y c en Asignar.');
+    if(!nodes.some(node=>node.type==='If'&&readsVariable(node.condition,'promedio')&&node.trueNext&&node.falseNext))feedback.push('Usa el rombo Si para decidir según el promedio, con ramas Sí y No.');
+  }
+  if(exercise.id==='documentation'&&!nodes.some(node=>node.type==='Comment' && node.text.trim())) feedback.push('Añade un Comentario con una explicación escrita por ti.');
+  if(exercise.id==='accumulate'||exercise.id==='factorial') {
+    const accumulator=exercise.id==='accumulate'?'suma':'factorial';
+    if(!nodes.some(node=>node.type==='Assign' && node.target===accumulator && readsVariable(node.expression,accumulator) && readsVariable(node.expression,'i')))feedback.push(`En el cuerpo del ciclo, actualiza ${accumulator} usando su valor anterior y el contador i.`);
+  }
+  // No duplicamos el mismo fallo con varias pruebas si ni siquiera está construido el flujo.
+  if(feedback.length)return {passed:false,feedback};
+  for(let index=0;index<exercise.tests.length;index++){
+    const test=exercise.tests[index];
+    const result=run(test.inputs);
+    if(result.status!=='FINISHED' || result.outputLog.join('')!==test.expectedOutput){
+      if(result.status==='ERROR')feedback.push(`Caso ${index+1}: el programa encontró un problema al ejecutarse. ${result.error??'Revisa los bloques y sus datos.'}`);
+      else if(result.status==='WAITING_INPUT')feedback.push(`Caso ${index+1}: falta solicitar o completar un dato de Entrada.`);
+      else {
+        const pretty=(value:string)=>value.replace(/\n/g,' ↵ ').trim()||'(nada)';
+        const given=test.inputs.length?`con ${test.inputs.join(', ')}`:'sin introducir datos';
+        feedback.push(`Caso ${index+1} (${given}): tu programa mostró «${pretty(result.outputLog.join(''))}»; para este ejercicio debe mostrar «${pretty(test.expectedOutput)}». Revisa las expresiones y el camino que siguieron las flechas.`);
+      }
     }
   }
-  return { passed: feedback.length === 0, feedback };
+  return {passed:feedback.length===0,feedback};
 }

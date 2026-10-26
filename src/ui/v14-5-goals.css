@@ -1,0 +1,49 @@
+/* v14.5 — La meta se ve antes de las pistas en cada reto móvil.
+   Deliberadamente no cambia la interfaz de escritorio. */
+.v145-mobile-objective{display:none}
+@media(max-width:760px){
+  .v145-mobile-objective{
+    display:grid;
+    gap:7px;
+    flex:none;
+    padding:11px 15px 10px;
+    border-bottom:1px solid #dce2fa;
+    background:#f2f4ff;
+    color:#253558;
+    max-height:min(27dvh,230px);
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+    box-sizing:border-box;
+  }
+  .v145-objective-heading,.v145-objective-bottom{
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+  }
+  .v145-objective-heading>span{
+    color:#5258c5;font-size:10px;font-weight:900;letter-spacing:.12em;
+  }
+  .v145-objective-heading button,.v145-objective-bottom button{
+    border:0!important;background:transparent!important;padding:6px 4px!important;
+    color:#4c51bd!important;font-weight:800;font-size:12px;white-space:nowrap;
+    min-height:36px;
+  }
+  .v145-mobile-objective>p{
+    font-size:14px;line-height:1.43;letter-spacing:0;
+    font-weight:670;max-width:100%;margin:0;
+    overflow-wrap:break-word;
+  }
+  .v145-objective-bottom{border-top:1px solid #dce2fa;padding-top:3px}
+  .v145-objective-bottom>span{color:#64718c;font-size:11px;line-height:1.35}
+  .v145-mobile-objective button:focus-visible{
+    outline:3px solid #7775e6;outline-offset:1px;border-radius:6px;
+  }
+  /* Al consultar los criterios, el diagrama conserva visibilidad parcial. */
+  .v145-panel-objective .v5-editor-sheet{height:min(58dvh,530px)!important;max-height:58dvh!important}
+  .v145-objective-sheet h3{font-size:19px;line-height:1.25;margin:7px 0}
+  .v145-objective-sheet>p{font-size:14px;line-height:1.6;overflow-wrap:anywhere}
+  .v145-objective-sheet .v143-rubric li{line-height:1.5}
+}
+@media(max-width:760px) and (max-height:690px){
+  .v145-mobile-objective{padding:8px 11px;gap:4px;max-height:29dvh}
+  .v145-mobile-objective>p{font-size:12px;line-height:1.35}
+  .v145-objective-heading button,.v145-objective-bottom button{font-size:11px;min-height:29px}
+}

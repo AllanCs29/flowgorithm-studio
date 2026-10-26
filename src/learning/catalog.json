@@ -85,7 +85,7 @@
     "worldName": "Variables y asignaciones",
     "title": "La caja número",
     "description": "Declara edad de tipo Integer y muéstrala.",
-    "check": "edad=0 al inicializar."
+    "check": "Declarar edad como Integer antes de Salida y mostrar la variable, sin exigir un valor fijo."
   },
   {
     "number": 12,
@@ -164,7 +164,7 @@
     "world": 3,
     "worldName": "Entrada y matemáticas",
     "title": "Pregúntame mi nombre",
-    "description": "Solicita String nombre y muestra saludo.",
+    "description": "Lee un nombre y construye un saludo usando & para unir el texto y la variable.",
     "check": "«Luz» produce un saludo con Luz."
   },
   {
@@ -484,7 +484,7 @@
     "world": 7,
     "worldName": "Texto y caracteres",
     "title": "Une dos palabras",
-    "description": "Concatena nombre y apellido.",
+    "description": "Une nombre y apellido con un espacio usando &.",
     "check": "«Ada» y «Lovelace» → «Ada Lovelace»."
   },
   {
@@ -500,7 +500,7 @@
     "world": 7,
     "worldName": "Texto y caracteres",
     "title": "Primera y última",
-    "description": "Obtiene primer y último carácter sin salir del rango.",
+    "description": "Muestra la primera y la última letra con un espacio entre ambas usando &.",
     "check": "«sol» → s y l."
   },
   {
@@ -524,7 +524,7 @@
     "world": 7,
     "worldName": "Texto y caracteres",
     "title": "Invierte la palabra",
-    "description": "Recorre cadena al revés.",
+    "description": "Recorre un texto al revés y construye la cadena usando &.",
     "check": "«roma» → «amor»."
   },
   {

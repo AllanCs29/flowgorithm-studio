@@ -59,6 +59,14 @@ export function expressionFor(value: string, language: LanguageId, mapIdentifier
       if (language === 'java') return `Math.pow(${left}, ${right})`;
       return `pow(${left}, ${right})`;
     }
+    if(expr.op==='mod')return `(${left} % ${right})`;
+    if(expr.op==='&') {
+      if(language==='python')return `(str(${left}) + str(${right}))`;
+      if(language==='javascript')return `(String(${left}) + String(${right}))`;
+      if(language==='java')return `(String.valueOf(${left}) + String.valueOf(${right}))`;
+      if(language==='cpp')return `([&](){ std::ostringstream flowText; flowText << ${left} << ${right}; return flowText.str(); }())`;
+      throw new Error('COMPATIBILITY_UNKNOWN: concatenar texto con & en C requiere conocer los tipos y reservar memoria; no se emitirá código inválido.');
+    }
     const op = expr.op === '=' || expr.op === '==' ? '==' : expr.op === '<>' || expr.op === '!=' ? '!=' : expr.op === 'and' || expr.op === '&&' ? (language === 'python' ? 'and' : '&&') : expr.op === 'or' || expr.op === '||' ? (language === 'python' ? 'or' : '||') : expr.op;
     if (op === '+' && language === 'c' && (expr.left.kind === 'literal' && typeof expr.left.value === 'string' || expr.right.kind === 'literal' && typeof expr.right.value === 'string')) throw new Error('COMPATIBILITY_UNKNOWN: concatenación de cadenas en C requiere una estrategia explícita.');
     if (op === '+' && language === 'cpp' && (expr.left.kind === 'literal' && typeof expr.left.value === 'string' || expr.right.kind === 'literal' && typeof expr.right.value === 'string')) return `(string(${left}) + ${right})`;
